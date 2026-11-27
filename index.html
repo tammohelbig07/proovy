@@ -1,0 +1,1540 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proovy Prototyp</title>
+<meta name="description" content="Proovy: kleine Gigs von Lehrstühlen, echte Nachweise im Skill-Pass statt Lebenslauf. Klickbarer Prototyp mit Demo-Daten.">
+<meta property="og:title" content="Proovy">
+<meta property="og:description" content="Kleine Gigs. Echte Nachweise. Der Skill-Pass statt Lebenslauf.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#10231C">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72'%3E%3Ccircle cx='36' cy='36' r='36' fill='%230E9460'/%3E%3Cpath d='M19 37 L31 50 L54 22' fill='none' stroke='white' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@500&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: schmale Demo-Leiste oben; darunter die Bühne mit Lenas Handy (Studi-App) links und dem Anbieter-Desktop rechts.
+   Ein bewusster Look: Proovy-Farbwelt „Original" (Waldtinte, Prüfgrün, Limette, Papier), nur hell. */
+:root{
+  --ink:#10231C;
+  --ink-2:#1B3A2E;
+  --ink-muted:#B9C7BF;
+  --ink-line:rgba(244,247,242,.16);
+  --green:#0E9460;
+  --green-text:#0B6E47;
+  --lime:#C8F169;
+  --paper:#F4F7F2;
+  --white:#FFFFFF;
+  --line:#DDE5DF;
+  --line-2:#A9BDB1;
+  --mist:#E6EAE2;
+  --mint:#DCEFE4;
+  --stage:#D9E2D5;
+  --muted:#4A5A52;
+  --muted-2:#3A4A42;
+  --warn-bg:#FFF1CC;
+  --warn-fg:#6B4E00;
+  --danger:#B3261E;
+  --scrim:rgba(16,35,28,.52);
+  --shadow:0 22px 50px -26px rgba(16,35,28,.55);
+  --display:'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --body:'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono:'DM Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--stage);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+button[disabled]{cursor:default}
+:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+h1,h2,h3,h4{font-family:var(--display);margin:0;letter-spacing:-.02em;text-wrap:balance}
+p{margin:0}
+ol,ul{margin:0;padding:0;list-style:none}
+[hidden]{display:none!important}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+legend{padding:0}
+
+/* ---------- Logo 03 · Haken im Kreis ---------- */
+.logo{display:inline-flex;align-items:baseline;font-family:var(--display);font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--ink);white-space:nowrap}
+.logo .mk{width:.6em;height:.6em;margin:0 .03em;flex:none}
+.mk-c{fill:var(--green)}
+.mk-p{fill:none;stroke:var(--white);stroke-width:8;stroke-linecap:round;stroke-linejoin:round}
+
+.ic{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.star{width:16px;height:16px;flex:none;stroke:none}
+.star.on{fill:var(--green)}
+.star.off{fill:var(--line)}
+
+/* ---------- App-Rahmen ---------- */
+.app{height:100%;display:flex;flex-direction:column}
+.bar{flex:none;display:flex;align-items:center;gap:14px;min-height:54px;padding-block:8px;padding-left:16px;padding-right:16px;background:var(--ink);color:var(--paper)}
+.bar-brand{display:flex;align-items:baseline;gap:12px;min-width:0}
+.bar .logo{color:var(--paper);font-size:24px}
+.bar-tag{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--lime);white-space:nowrap}
+.seg{display:inline-flex;gap:2px;padding:3px;border-radius:999px;border:1px solid var(--ink-line);margin-left:auto}
+.seg button{border:0;background:transparent;color:var(--paper);min-height:36px;padding:0 16px;border-radius:999px;font-weight:600;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--lime);color:var(--ink)}
+.bar-reset{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--ink-line);background:transparent;color:var(--paper);font-weight:600;font-size:14px;white-space:nowrap}
+.bar-reset:hover{background:var(--ink-2)}
+
+.stage{flex:1;min-height:0;display:flex;justify-content:center;gap:24px;padding:14px 16px 16px;overflow:auto}
+.side{display:flex;flex-direction:column;gap:8px;min-height:0}
+.side-cap{flex:none;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-2);padding-left:6px}
+.side.studi{flex:none;width:392px}
+.side.anbieter{flex:1;min-width:0;max-width:1240px}
+.phone{position:relative;flex:1;min-height:600px;max-height:880px;width:100%;border:10px solid var(--ink);border-radius:48px;background:var(--paper);overflow:hidden;box-shadow:var(--shadow)}
+.desk{position:relative;flex:1;min-height:600px;background:var(--white);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);container-type:inline-size}
+.stage[data-view="studi"] .side.anbieter{display:none}
+.stage[data-view="anbieter"] .side.studi{display:none}
+
+/* ---------- Studi-App ---------- */
+.scr{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--paper)}
+.s-head{flex:none;display:flex;flex-direction:column;gap:10px;padding:16px 16px 8px}
+.row-between{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.row-end{display:flex;justify-content:flex-end;align-items:center;gap:10px;flex-wrap:wrap}
+.s-head .logo{font-size:26px}
+.s-title{font-size:26px;font-weight:700;letter-spacing:-.03em}
+.fitcount{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 11px;background:var(--mint);color:var(--green-text);font-size:13px;font-weight:600;white-space:nowrap}
+.fitcount .ic{width:15px;height:15px;stroke-width:2.6}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;min-height:36px;padding:0 15px;border-radius:999px;border:1px solid var(--line);background:var(--white);color:var(--muted-2);font-weight:600;font-size:14px}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.s-body{position:relative;flex:1;min-height:0}
+.scroll{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain}
+.feed{scroll-snap-type:y mandatory}
+.slot{height:100%;padding:6px 14px 14px;scroll-snap-align:start;scroll-snap-stop:always}
+.pad{display:flex;flex-direction:column;gap:14px;padding:6px 16px 28px}
+
+.gcard{height:100%;display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:26px;background:var(--white);border:1px solid var(--line);box-shadow:0 16px 30px -24px rgba(16,35,28,.5)}
+.gc-top{display:flex;align-items:center;gap:10px;min-width:0}
+.gc-prov{flex:1;min-width:0;font-size:13px;font-weight:600;color:var(--muted-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gc-main{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
+.gc-tags{display:flex;flex-wrap:wrap;gap:6px}
+.gc-title{font-size:26px;line-height:1.08;font-weight:700;letter-spacing:-.03em}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin:0;border-radius:16px;overflow:hidden;background:var(--line);border:1px solid var(--line)}
+.facts div{display:flex;flex-direction:column;gap:1px;padding:9px 12px;background:var(--paper);min-width:0}
+.facts dt{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.facts dd{margin:0;font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.need{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.mini{font-size:12px;color:var(--muted)}
+.mini-lbl{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.sk{display:inline-flex;align-items:center;gap:4px;border-radius:8px;padding:4px 8px;font-size:13px;font-weight:600;line-height:1.25;background:var(--mist);color:var(--muted-2)}
+.sk .ic{width:13px;height:13px;stroke-width:2.6}
+.sk.have,.sk.conf{background:var(--mint);color:var(--green-text)}
+.sk.self{background:var(--white);color:var(--muted);box-shadow:inset 0 0 0 1px var(--line-2)}
+.gain{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:14px;border:1.5px dashed var(--line-2);font-size:13px;color:var(--muted-2)}
+.gain .ic{color:var(--green);margin-top:1px}
+.gain strong{display:block;font-size:14px;color:var(--ink)}
+.gc-foot{display:flex;gap:8px}
+
+.av{flex:none;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:-.01em}
+.av.wi{background:var(--ink);color:var(--lime)}
+.av.da{background:var(--lime);color:var(--ink)}
+.av.mci{background:var(--mint);color:var(--green-text)}
+.av.im{background:var(--mist);color:var(--ink)}
+.av.pv{background:var(--paper);box-shadow:inset 0 0 0 1px var(--line)}
+.av.pv .mk{width:22px;height:22px}
+.av.person{border-radius:50%;background:var(--ink);color:var(--lime)}
+
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;line-height:1.25;white-space:nowrap}
+.pill .ic{width:13px;height:13px;stroke-width:2.6}
+.pill.new{background:var(--ink);color:var(--lime);font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.tag-starter{background:var(--lime);color:var(--ink)}
+.tag-paid{background:var(--white);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.fit-yes{background:var(--mint);color:var(--green-text)}
+.fit-no{background:var(--mist);color:var(--muted)}
+.st-open{background:var(--mist);color:var(--muted-2)}
+.st-apps{background:var(--lime);color:var(--ink)}
+.st-progress{background:var(--mint);color:var(--green-text)}
+.st-review{background:var(--warn-bg);color:var(--warn-fg)}
+.st-done{background:var(--ink);color:var(--lime)}
+.st-rejected{background:var(--mist);color:var(--muted)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 18px;border-radius:14px;border:1px solid transparent;font-weight:600;font-size:15px;line-height:1.15;text-align:center;text-decoration:none}
+.btn.sm{min-height:40px;padding:0 13px;font-size:14px;border-radius:12px}
+.btn.primary{background:var(--ink);color:var(--paper)}
+.btn.primary:hover:not([disabled]){background:var(--ink-2)}
+.btn.primary[disabled]{opacity:.6}
+.btn.ghost{background:var(--white);border-color:var(--line);color:var(--ink)}
+.btn.ghost:hover:not([disabled]){border-color:var(--line-2)}
+.btn.lime{background:var(--lime);color:var(--ink)}
+.btn.done{background:var(--mint);color:var(--green-text)}
+.btn.grow{flex:1}
+.btn[aria-pressed="true"]{background:var(--mint);border-color:var(--mint);color:var(--green-text)}
+.icon-btn{flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--white);display:grid;place-items:center;color:var(--ink)}
+
+.tabbar{flex:none;display:grid;grid-template-columns:repeat(3,1fr);padding:6px 6px 8px;background:var(--white);border-top:1px solid var(--line)}
+.tab{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:54px;padding:4px;border:0;background:none;color:var(--muted);font-size:12px;font-weight:600}
+.tab .ti{width:52px;height:30px;border-radius:999px;display:grid;place-items:center}
+.tab .ic{width:22px;height:22px;stroke-width:1.8}
+.tab[aria-current="page"]{color:var(--ink)}
+.tab[aria-current="page"] .ti{background:var(--lime)}
+.tbadge{position:absolute;top:0;left:calc(50% + 10px);min-width:19px;height:19px;padding:0 5px;border-radius:10px;display:grid;place-items:center;background:var(--ink);color:var(--lime);font-size:11px;font-weight:700}
+
+.empty{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:20px;border-radius:20px;border:1.5px dashed var(--line-2);background:var(--white)}
+.empty h3{font-size:19px}
+.empty p{color:var(--muted-2);font-size:14px}
+
+.sh{display:flex;align-items:center;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:4px}
+.mg,.entry{display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:20px;background:var(--white);border:1px solid var(--line)}
+.mg-tt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.mg-tt h3{font-size:17px;line-height:1.2;letter-spacing:-.02em}
+.mg-tt span{font-size:13px;color:var(--muted)}
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.step{display:flex;flex-direction:column;gap:6px;font-size:11px;font-weight:600;color:var(--muted)}
+.step i{display:block;height:6px;border-radius:3px;background:var(--mist)}
+.step.done i,.step.now i{background:var(--green)}
+.step.now{color:var(--ink)}
+.mg-note{font-size:14px;color:var(--muted-2);display:flex;align-items:center;gap:8px}
+.submit{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:14px;background:var(--paper)}
+.submit label{font-size:13px;font-weight:600}
+.submit-row{display:flex;gap:8px}
+.submit-row input{flex:1;min-width:0;min-height:46px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--white);font-size:14px}
+.saved-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:var(--white);border:1px solid var(--line)}
+
+.pass-card{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:24px;background:var(--ink);color:var(--paper)}
+.pass-card .deco{position:absolute;right:-26px;top:-18px;width:150px;height:150px;opacity:.12;pointer-events:none}
+.pass-card .deco path{fill:none;stroke:var(--lime);stroke-width:12;stroke-linecap:round;stroke-linejoin:round}
+.pass-lbl{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--lime)}
+.pass-name{font-size:28px;font-weight:700;letter-spacing:-.03em}
+.pass-meta{font-size:14px;color:var(--ink-muted)}
+.pass-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pass-stats div{display:flex;flex-direction:column;gap:1px;padding:9px 10px;border-radius:12px;border:1px solid var(--ink-line)}
+.pass-stats b{font-family:var(--display);font-size:22px;line-height:1.1;color:var(--paper);font-variant-numeric:tabular-nums}
+.pass-stats span{font-size:11px;color:var(--ink-muted)}
+.entry.fresh{animation:pop .7s cubic-bezier(.2,1.3,.4,1)}
+.stars{display:inline-flex;gap:2px;align-items:center}
+.quote{margin:0;padding:10px 12px;border-radius:12px;background:var(--paper);font-size:14px;color:var(--muted-2)}
+.linkrow{display:flex;align-items:center;gap:10px;padding:12px;border-radius:16px;background:var(--white);border:1px solid var(--line);font-size:14px;font-weight:600;color:var(--green-text);word-break:break-all}
+
+/* Sheet, Feier, Toasts */
+.scrim{position:absolute;inset:0;z-index:20;display:flex;align-items:flex-end;background:var(--scrim);animation:fade .2s ease}
+.sheet{width:100%;max-height:90%;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding:10px 16px 0;border-radius:26px 26px 0 0;background:var(--white);animation:up .3s cubic-bezier(.2,.8,.2,1)}
+.grab{align-self:center;width:42px;height:5px;border-radius:3px;background:var(--line)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.sheet-t{font-size:21px;line-height:1.15}
+.stack-2{display:flex;flex-direction:column;gap:3px;min-width:0}
+.mini-pass{display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:18px;background:var(--ink);color:var(--paper)}
+.mp-lbl{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--lime)}
+.mp-b{display:flex;flex-direction:column}
+.mp-b b{font-family:var(--display);font-size:19px}
+.mp-b span,.mp-n{font-size:13px;color:var(--ink-muted)}
+.f{display:flex;flex-direction:column;gap:6px;min-width:0}
+.f label,.flabel{font-size:13px;font-weight:600;color:var(--ink)}
+.f input:not([type="range"]),.f textarea,.ai textarea{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--white);font-size:15px;line-height:1.4}
+.f textarea,.ai textarea{resize:vertical}
+.f input:not([type="range"]):focus,.f textarea:focus,.ai textarea:focus,.submit-row input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(14,148,96,.2)}
+.counter{align-self:flex-end;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+.cele{position:absolute;inset:0;z-index:70;display:grid;place-items:center;padding:20px;overflow-x:hidden;overflow-y:auto;background:rgba(16,35,28,.78);animation:fade .25s ease}
+.cele-card{position:relative;z-index:2;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px;padding:26px 20px 20px;border-radius:28px;background:var(--paper);text-align:center;animation:pop .6s cubic-bezier(.2,1.4,.4,1)}
+.cele-mark{width:92px;height:92px}
+.cele-mark .mk-p{stroke-dasharray:60;stroke-dashoffset:60;animation:draw .55s .3s ease forwards}
+.cele-card h3{font-size:25px;line-height:1.1}
+.cele-card p{font-size:14px;color:var(--muted-2)}
+.cele-entry{width:100%;display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;background:var(--white);border:1px solid var(--line);text-align:left}
+.cele-entry b{font-family:var(--display);font-size:16px;line-height:1.2}
+.cele-act{width:100%;display:flex;flex-direction:column;gap:8px}
+.confetti{position:absolute;top:-24px;z-index:1;width:9px;height:14px;border-radius:2px;animation:fall linear forwards}
+
+.toasts{position:absolute;z-index:60;left:12px;right:12px;top:12px;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+.toasts.desk-t{top:auto;left:auto;right:18px;bottom:18px;width:min(400px,calc(100% - 36px));align-items:flex-end}
+.toasts.global{position:fixed;top:auto;left:50%;right:auto;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(460px,calc(100% - 32px))}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:10px;max-width:100%;padding:10px 14px;border-radius:14px;background:var(--ink);color:var(--paper);font-size:14px;font-weight:500;box-shadow:var(--shadow);animation:tin .25s ease;transition:opacity .25s,transform .25s}
+.toast.out{opacity:0;transform:translateY(6px)}
+.tico{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--green);color:var(--white)}
+.tico .ic{width:13px;height:13px;stroke-width:3}
+.toast button{flex:none;border:0;background:none;padding:6px 4px;color:var(--lime);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+
+/* ---------- Anbieter-Desktop ---------- */
+.desk-in{position:absolute;inset:0;display:grid;grid-template-columns:220px minmax(0,1fr)}
+.d-side{display:flex;flex-direction:column;gap:18px;min-height:0;overflow-y:auto;padding:22px 14px 14px;background:var(--paper);border-right:1px solid var(--line)}
+.d-brand{display:flex;flex-direction:column;gap:6px;padding:0 8px}
+.d-brand .logo{font-size:28px}
+.d-nav{display:flex;flex-direction:column;gap:2px}
+.d-nav button{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 10px;border:0;border-radius:12px;background:none;color:var(--muted-2);font-weight:600;font-size:14px;text-align:left;white-space:nowrap}
+.d-nav button:hover{background:var(--mist)}
+.d-nav button[aria-current="page"]{background:var(--white);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.d-nav .cnt{margin-left:auto;min-width:22px;padding:1px 7px;border-radius:999px;background:var(--ink);color:var(--lime);font-size:12px;font-weight:700;text-align:center}
+.d-me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px 8px 4px;border-top:1px solid var(--line)}
+.d-me > div > b{display:block;font-size:14px}
+.d-me > div > span{display:block;font-size:12px;color:var(--muted);line-height:1.3}
+.d-main{min-width:0;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:22px;padding:28px 32px 48px}
+.d-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.d-head h2{font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1.05}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:112px;padding:16px 18px;border-radius:18px;border:1px solid var(--line);background:var(--white);text-align:left;color:var(--ink)}
+button.tile:hover{border-color:var(--line-2)}
+.tile b{font-family:var(--display);font-size:42px;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.tile span{font-size:14px;font-weight:600;color:var(--muted-2)}
+.tile.hot{background:var(--lime);border-color:var(--lime)}
+.tile.hot span{color:var(--ink)}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.sec-h h3{font-size:20px}
+.tbl-wrap{border:1px solid var(--line);border-radius:18px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{padding:11px 14px;background:var(--paper);border-bottom:1px solid var(--line);text-align:left;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.td-title{display:flex;align-items:center;gap:8px;min-width:220px}
+.td-title b{font-weight:600}
+
+.ai{display:flex;flex-direction:column;gap:12px;padding:20px;border-radius:20px;background:var(--paper);border:1px solid var(--line)}
+.ai > label{font-family:var(--display);font-size:19px;font-weight:700;letter-spacing:-.02em}
+.exs{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.ex{min-height:36px;padding:0 13px;border-radius:999px;border:1.5px dashed var(--line-2);background:var(--white);color:var(--muted-2);font-size:13px;font-weight:600}
+.ex:hover{border-color:var(--green);color:var(--ink)}
+.err{font-size:14px;font-weight:600;color:var(--danger)}
+.ai-load{display:flex;flex-direction:column;gap:12px;padding:18px 20px;border-radius:20px;border:1px solid var(--line)}
+.ai-step{display:flex;align-items:center;gap:12px;font-weight:600;color:var(--muted)}
+.ai-step.on,.ai-step.ok{color:var(--ink)}
+.spin{flex:none;width:20px;height:20px;border-radius:50%;border:2.5px solid var(--line);border-top-color:var(--green);animation:spin .8s linear infinite}
+.dot{flex:none;width:20px;height:20px;border-radius:50%;border:2px dashed var(--line-2)}
+.okc{flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--green);color:var(--white)}
+.okc .ic{width:12px;height:12px;stroke-width:3}
+.draft{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;padding:20px;border-radius:20px;border:1.5px solid var(--ink);animation:tin .3s ease}
+.draft-h{grid-column:1/-1;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.draft-h h3{font-size:21px}
+.span4{grid-column:1/-1}
+.crit{display:flex;flex-direction:column;gap:8px}
+.seg2{display:inline-flex;gap:4px;padding:3px;border-radius:12px;background:var(--mist)}
+.seg2 button{flex:1;min-height:40px;padding:0 12px;border:0;border-radius:10px;background:transparent;font-weight:600;font-size:14px;color:var(--muted-2)}
+.seg2 button[aria-pressed="true"]{background:var(--white);color:var(--ink);box-shadow:0 1px 3px rgba(16,35,28,.18)}
+.hint{grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:12px;background:var(--warn-bg);color:var(--warn-fg);font-size:14px;font-weight:600}
+.draft-act{grid-column:1/-1;display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+
+.grp{display:flex;flex-direction:column;gap:12px}
+.grp-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.grp-h h3{font-size:19px}
+.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.ap{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:18px;border:1px solid var(--line);background:var(--white)}
+.ap.is-lena{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.ap-who{display:flex;align-items:center;gap:10px}
+.ap-who > div{flex:1;min-width:0}
+.ap-who > div > b{display:block;font-size:15px}
+.ap-who > div > span{display:block;font-size:13px;color:var(--muted)}
+.ap-pass{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:14px;background:var(--paper)}
+.ap-pass ul{display:flex;flex-direction:column;gap:4px}
+.ap-pass li{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px}
+.ap-pass li > .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ap-act{display:flex;gap:8px}
+.ap-act .btn{flex:1}
+.rv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 18px;align-items:center;padding:16px 18px;border-radius:18px;border:1px solid var(--line);background:var(--white)}
+.rv-main{display:flex;flex-direction:column;gap:8px;min-width:0}
+.rv-main h3{font-size:18px}
+.rv-link{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--green-text);word-break:break-all}
+.crit-list{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted-2)}
+.crit-list li{display:flex;gap:6px;align-items:flex-start}
+.crit-list .ic{width:15px;height:15px;color:var(--green);margin-top:2px}
+.done-list{display:flex;flex-direction:column;gap:8px}
+.done-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:14px;background:var(--paper);font-size:14px}
+.done-row > .t{flex:1;min-width:0}
+
+.mscrim{position:absolute;inset:0;z-index:30;display:grid;place-items:center;padding:20px;background:var(--scrim);animation:fade .2s ease}
+.modal{width:min(540px,100%);max-height:100%;overflow-y:auto;display:flex;flex-direction:column;gap:18px;padding:22px;border-radius:22px;background:var(--white);animation:pop .35s cubic-bezier(.2,1.2,.4,1)}
+.modal h3{font-size:23px}
+.modal legend{font-size:13px;font-weight:600;margin-bottom:8px}
+.starpick{display:flex;gap:6px}
+.starpick button{width:46px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--white);display:grid;place-items:center}
+.starpick .star{width:26px;height:26px;fill:var(--line)}
+.starpick button[aria-pressed="true"]{background:var(--mint);border-color:var(--mint)}
+.starpick button[aria-pressed="true"] .star{fill:var(--green)}
+.checks{display:flex;flex-wrap:wrap;gap:8px}
+.checks label{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 12px;border-radius:12px;border:1px solid var(--line);font-size:14px;font-weight:600;cursor:pointer}
+.checks input{width:18px;height:18px;accent-color:var(--green)}
+
+/* v2: Gig-Details, Onboarding, Demo-Ablauf */
+.gcard{cursor:pointer}
+.tbtn{all:unset;cursor:pointer}
+.tbtn:focus-visible{outline:3px solid var(--green);outline-offset:3px;border-radius:6px}
+.scrim.still,.scrim.still .sheet{animation:none}
+.sheet > *{flex-shrink:0}
+.ob-ok{align-self:flex-start;margin-bottom:8px}
+.sheet-t.big{font-size:26px;letter-spacing:-.03em}
+.dsec{display:flex;flex-direction:column;gap:8px}
+.dsec h4{font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.dsec p{font-size:15px}
+.sheet-foot{position:sticky;bottom:0;display:flex;gap:8px;margin-top:2px;padding:12px 0 18px;background:var(--white);border-top:1px solid var(--line)}
+
+.ob{position:absolute;inset:0;overflow-y:auto;display:flex;flex-direction:column;gap:16px;padding:14px 20px 22px;background:var(--paper)}
+.ob-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ob-dots{display:flex;gap:6px}
+.ob-dots i{width:30px;height:6px;border-radius:3px;background:var(--mist)}
+.ob-dots i.on{background:var(--green)}
+.linkbtn{min-height:44px;padding:0 4px;border:0;background:none;color:var(--green-text);font-weight:600;font-size:14px;text-decoration:underline;text-underline-offset:3px}
+.ob-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px}
+.ob-hero{display:flex;flex-direction:column;gap:14px}
+.ob-logo .logo{font-size:46px}
+.ob h2{font-size:32px;line-height:1.02;letter-spacing:-.035em}
+.ob-hero p{font-size:16px;color:var(--muted-2);max-width:30ch}
+.ob-foot{display:flex;flex-direction:column;gap:10px}
+.ob-foot .mini{text-align:center}
+.stepper{display:flex;align-items:center;gap:8px}
+.stepper button{width:52px;height:52px;border-radius:14px;border:1px solid var(--line);background:var(--white);font-size:24px;font-weight:600;line-height:1}
+.stepper output{flex:1;text-align:center;font-family:var(--display);font-weight:700;font-size:22px}
+.ob-chips{display:flex;flex-wrap:wrap;gap:8px}
+.hours-row{display:flex;align-items:center;gap:14px}
+.hours-row input{flex:1;min-width:0;height:32px;accent-color:var(--green)}
+.hours-row output{min-width:64px;text-align:right;font-family:var(--display);font-weight:700;font-size:28px;font-variant-numeric:tabular-nums}
+.ob-live{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:var(--mint);color:var(--green-text);font-weight:600;font-size:14px}
+.ob-live b{font-family:var(--display);font-size:20px;font-variant-numeric:tabular-nums}
+.ob-moment{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:24px 22px;border-radius:28px;background:var(--lime);color:var(--ink);animation:pop .6s cubic-bezier(.2,1.3,.4,1)}
+.ob-mark{width:56px;height:56px}
+.big-n{font-family:var(--display);font-weight:700;font-size:128px;line-height:.85;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+.ob-moment h2{font-size:28px}
+.ob-moment p{font-size:15px;color:var(--ink)}
+.spin.sm{width:16px;height:16px;border-width:2px;border-color:var(--ink-line);border-top-color:var(--lime)}
+
+.bar-reset[aria-expanded="true"]{background:var(--ink-2);border-color:var(--lime)}
+.guide{position:fixed;z-index:80;top:calc(62px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));width:min(380px,calc(100% - 32px));display:flex;flex-direction:column;gap:12px;padding:16px 18px;border-radius:18px;background:var(--white);border:1px solid var(--line);box-shadow:var(--shadow);animation:tin .2s ease}
+.guide-h{font-family:var(--display);font-weight:700;font-size:17px}
+.guide ol{display:flex;flex-direction:column;gap:10px}
+.guide li{display:flex;align-items:flex-start;gap:10px;font-size:14px;line-height:1.4;color:var(--muted-2)}
+.guide li.ok{color:var(--ink)}
+.gnum{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--mist);color:var(--muted-2)}
+.guide li.ok .gnum{background:var(--green);color:var(--white)}
+.gnum .ic{width:13px;height:13px;stroke-width:3}
+
+/* ---------- Öffentlicher Skill-Pass (#pass-lena-becker) ---------- */
+.pub{min-height:100%;background:var(--paper);color:var(--ink)}
+.pub-in{width:100%;max-width:760px;margin-inline:auto;padding-left:16px;padding-right:16px}
+.pub-bar{background:var(--ink);color:var(--paper)}
+.pub-bar-in{display:flex;align-items:center;gap:12px;min-height:56px;padding-block:8px}
+.pub-bar .logo{color:var(--paper);font-size:24px}
+.pub-tag{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--lime);white-space:nowrap}
+.pub-back{margin-left:auto;display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--ink-line);background:transparent;color:var(--paper);font-weight:600;font-size:14px;white-space:nowrap}
+.pub-back:hover{background:var(--ink-2)}
+.pub-main{display:flex;flex-direction:column;gap:18px;padding-block:22px 40px}
+.pub-card .pass-name{font-size:clamp(30px,6vw,40px);line-height:1.05}
+.pub-lead{max-width:60ch;font-size:15px;color:var(--muted-2)}
+.pub-sec{display:flex;flex-direction:column;gap:12px}
+.pub-sec .sh{font-weight:500}
+.pub-ask{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;padding:18px 20px;border-radius:22px;background:var(--lime);color:var(--ink)}
+.pub-ask .stack-2{flex:1 1 260px}
+.pub-ask-t{font-size:20px}
+.pub-ask p{font-size:14px}
+.pub-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding-top:16px;border-top:1px solid var(--line)}
+.pub-foot .logo{font-size:20px}
+
+@keyframes fade{from{opacity:0}}
+@keyframes up{from{transform:translateY(100%)}}
+@keyframes tin{from{opacity:0;transform:translateY(8px)}}
+@keyframes pop{0%{opacity:0;transform:scale(.92)}100%{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes fall{0%{transform:translate3d(0,0,0) rotate(0)}100%{transform:translate3d(var(--dx),940px,0) rotate(var(--rot))}}
+
+@container (max-width: 720px){
+  .desk-in{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
+  .d-side{flex-direction:row;align-items:center;gap:12px;overflow-x:auto;overflow-y:hidden;padding:10px 12px;border-right:0;border-bottom:1px solid var(--line)}
+  .d-brand{flex-direction:row;align-items:baseline;padding:0 4px}
+  .d-brand .logo{font-size:22px}
+  .d-brand .mini-lbl,.d-me{display:none}
+  .d-nav{flex-direction:row}
+  .d-main{padding:20px 18px 40px}
+  .d-head h2{font-size:26px}
+}
+@container (max-width: 560px){
+  .tiles{grid-template-columns:1fr}
+  .tile{min-height:0;flex-direction:row;align-items:center;gap:14px}
+  .tile b{font-size:32px}
+  .draft{grid-template-columns:1fr 1fr}
+  .rv{grid-template-columns:1fr}
+}
+@media (max-height: 820px){
+  .side-cap{display:none}
+  .gcard{padding:15px;gap:11px}
+  .gc-title{font-size:23px}
+  .facts div{padding:7px 11px}
+  .facts dd{font-size:18px}
+}
+@media (max-width: 759px){
+  .stage{padding:0;gap:0}
+  .side-cap{display:none}
+  .side.studi{width:100%}
+  .phone{border:0;border-radius:0;max-height:none;min-height:0;box-shadow:none}
+  .desk{border:0;border-radius:0;min-height:0;box-shadow:none}
+  .stage[data-view="beide"] .side.anbieter{display:none}
+  .only-wide,.bar-tag{display:none}
+  .bar{gap:10px}
+  .bar .logo{font-size:21px}
+  .seg button{padding:0 12px}
+  .bar-reset{width:38px;padding:0;justify-content:center}
+  .bar-reset span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition:none!important}
+  .confetti{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="bar">
+    <div class="bar-brand">
+      <span class="logo" role="img" aria-label="Proovy"><span aria-hidden="true">proo</span><svg class="mk" viewBox="0 0 72 72" aria-hidden="true"><circle class="mk-c" cx="36" cy="36" r="36"></circle><path class="mk-p" d="M19 37 L31 50 L54 22"></path></svg><span aria-hidden="true">y</span></span>
+      <span class="bar-tag">Prototyp v2</span>
+    </div>
+    <div class="seg" role="group" aria-label="Ansicht">
+      <button type="button" data-act="view" data-v="studi" aria-pressed="false">Studi</button>
+      <button type="button" data-act="view" data-v="anbieter" aria-pressed="false">Anbieter</button>
+      <button type="button" class="only-wide" data-act="view" data-v="beide" aria-pressed="false">Beide</button>
+    </div>
+    <button type="button" class="bar-reset" data-act="guide" aria-expanded="false" aria-controls="guide"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6H20M9.5 12H20M9.5 18H20M4.5 6h.01M4.5 12h.01M4.5 18h.01"></path></svg><span>Ablauf</span></button>
+    <button type="button" class="bar-reset" data-act="reset"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5"></path></svg><span>Demo zurücksetzen</span></button>
+  </header>
+  <div class="guide" id="guide" role="region" aria-label="Demo-Ablauf" hidden></div>
+
+  <main class="stage" id="stage" data-view="beide">
+    <section class="side studi" id="sideStudi" aria-label="Studi-App">
+      <p class="side-cap">Studi-App · Lena am Handy</p>
+      <div class="phone">
+        <div class="scr" id="studi"></div>
+        <div id="studiSheet"></div>
+        <div id="studiCele" hidden></div>
+        <div class="toasts" id="t-studi" aria-live="polite"></div>
+      </div>
+    </section>
+    <section class="side anbieter" id="sideAnbieter" aria-label="Anbieter-Ansicht">
+      <p class="side-cap">Anbieter · Lehrstuhl am Laptop</p>
+      <div class="desk">
+        <div class="desk-in" id="anbieter"></div>
+        <div id="deskModal"></div>
+        <div class="toasts desk-t" id="t-anbieter" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+  <div class="toasts global" id="t-global" aria-live="polite"></div>
+</div>
+<div class="pub" id="pub" hidden></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ================= Konstanten & Dummy-Daten ================= */
+const KEY = 'proovy-prototyp-v2';
+const VKEY = 'proovy-prototyp-v2-view';
+const ME = 'Lehrstuhl für Wirtschaftsinformatik';
+const NARROW = window.matchMedia('(max-width: 759px)');
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+const PROV = {
+  'Proovy': {s:'', c:'pv'},
+  'Lehrstuhl für Wirtschaftsinformatik': {s:'WI', c:'wi'},
+  'Fachgebiet Datenanalyse': {s:'DA', c:'da'},
+  'Fachgebiet Mensch-Computer-Interaktion': {s:'MCI', c:'mci'},
+  'Lehrstuhl für Innovationsmanagement': {s:'IM', c:'im'}
+};
+
+const PEOPLE = {
+  tim: {name:'Tim Schulz', study:'BWL (B.Sc.)', sem:3,
+    entries:[{title:'Skill-Check: Quellen recherchieren und richtig zitieren', stars:5},{title:'Folien für einen Gastvortrag gestalten', stars:4}],
+    confirmed:['Recherche','Zitieren','PowerPoint'], self:['Excel','SPSS']},
+  aylin: {name:'Aylin Demir', study:'Wirtschaftsinformatik (B.Sc.)', sem:1,
+    entries:[{title:'Skill-Check: CSV-Datensatz mit Python bereinigen', stars:5}],
+    confirmed:['Python','Datenbereinigung'], self:['Excel','SQL-Grundlagen']},
+  jonas: {name:'Jonas Weber', study:'Informatik (B.Sc.)', sem:3,
+    entries:[{title:'Englische Abstracts Korrektur lesen', stars:5},{title:'Messdaten mit Python plotten', stars:5},{title:'Skill-Check: Quellen recherchieren und richtig zitieren', stars:4}],
+    confirmed:['Englisch','Lektorat','Python','Matplotlib','Recherche'], self:['Java']}
+};
+
+function seed(){
+  return {
+    v: 2, n: 100, onboarded: false,
+    user: {name:'Lena Becker', first:'Lena', study:'Informatik (B.Sc.)', sem:1, hours:6,
+      skills:['Python-Grundlagen','Excel','Recherche','Englisch','Canva'], github:'github.com/lena-becker'},
+    gigs: [
+      {id:'s1', type:'starter', title:'Skill-Check: CSV-Datensatz mit Python bereinigen', provider:'Proovy', hours:1, pay:0, remote:true, deadlineDays:7,
+        need:['Python-Grundlagen'], gains:['Python','Datenbereinigung'], contact:'Proovy-Team',
+        desc:'Ein Datensatz mit 500 Mensa-Bestellungen hat Tippfehler, Lücken und doppelte Zeilen. Bereinige ihn mit Python und kommentiere kurz, was du gemacht hast.',
+        result:'Python-Skript und bereinigte CSV-Datei als Link',
+        criteria:['Doppelte Zeilen sind entfernt','Fehlende Werte sind sinnvoll behandelt','Das Skript läuft ohne Fehler durch'],
+        link:'https://github.com/lena-becker/csv-bereinigung'},
+      {id:'s2', type:'starter', title:'Skill-Check: Quellen recherchieren und richtig zitieren', provider:'Proovy', hours:1, pay:0, remote:true, deadlineDays:7,
+        need:['Recherche'], gains:['Recherche','Zitieren'], contact:'Proovy-Team',
+        desc:'Finde zu einer vorgegebenen Frage fünf wissenschaftliche Quellen und zitiere sie einheitlich im APA-Stil.',
+        result:'Literaturliste mit fünf Quellen',
+        criteria:['Fünf passende, seriöse Quellen','Einheitlicher APA-Stil','Pro Quelle ein Satz, warum sie passt'],
+        link:'https://docs.uni-beispiel.de/lena/quellenliste'},
+      {id:'s3', type:'starter', title:'Skill-Check: Infografik aus fünf Zahlen gestalten', provider:'Proovy', hours:1, pay:0, remote:true, deadlineDays:7,
+        need:['Canva'], gains:['Datenvisualisierung','Canva'], contact:'Proovy-Team',
+        desc:'Aus fünf Kennzahlen zur Bibliotheksnutzung gestaltest du eine Infografik, die man in zehn Sekunden versteht.',
+        result:'Infografik als PNG',
+        criteria:['Alle fünf Zahlen stimmen','Auf dem Handy gut lesbar','Überschrift mit klarer Aussage'],
+        link:'https://cloud.uni-beispiel.de/s/lena-infografik'},
+      {id:'p1', type:'paid', title:'Umfragedaten in Excel aufbereiten', provider:'Lehrstuhl für Wirtschaftsinformatik', hours:4, pay:60, remote:true, deadlineDays:6,
+        need:['Excel','Datenaufbereitung'], gains:['Excel','Datenaufbereitung'], contact:'Dr. Jana Wolff',
+        desc:'Aus unserer Lehrevaluation liegen 320 Antworten als Rohdaten vor. Du bereinigst sie und baust eine Übersicht mit Diagrammen.',
+        result:'Excel-Datei mit bereinigten Daten und einer Übersichtsseite',
+        criteria:['Leere und doppelte Antworten sind entfernt','Jede Frage hat eine Auswertung mit Diagramm','Kurze Notiz zu Auffälligkeiten']},
+      {id:'p2', type:'paid', title:'Messdaten mit Python plotten', provider:'Fachgebiet Datenanalyse', hours:3, pay:45, remote:true, deadlineDays:5,
+        need:['Python','Matplotlib'], gains:['Python','Matplotlib'], contact:'Prof. Dr. Malte Brandt',
+        desc:'Temperaturmessungen aus drei Laborversuchen liegen als CSV vor. Erstelle mit Matplotlib saubere Diagramme für ein Paper.',
+        result:'Jupyter-Notebook und drei Diagramme als PNG',
+        criteria:['Achsen mit Einheiten beschriftet','Einheitlicher Stil für alle Diagramme','Notebook läuft von oben nach unten durch']},
+      {id:'p3', type:'paid', title:'Teamseite des Fachgebiets aktualisieren', provider:'Fachgebiet Mensch-Computer-Interaktion', hours:5, pay:75, remote:true, deadlineDays:10,
+        need:['HTML','CSS'], gains:['HTML','CSS'], contact:'Sven Kramer',
+        desc:'Auf unserer Teamseite fehlen vier neue Mitarbeitende und einige Links sind kaputt. Du pflegst die Seite in HTML und CSS.',
+        result:'Aktualisierte Teamseite auf dem Testserver',
+        criteria:['Alle vier Profile mit Foto und Kurztext','Keine toten Links mehr','Seite funktioniert auf dem Handy']},
+      {id:'p4', type:'paid', title:'Folien für einen Gastvortrag gestalten', provider:'Lehrstuhl für Innovationsmanagement', hours:3, pay:45, remote:true, deadlineDays:4,
+        need:['PowerPoint','Gestaltung'], gains:['PowerPoint','Gestaltung'], contact:'Dr. Lea Hoffmann',
+        desc:'Für einen Gastvortrag über Open Innovation brauchen wir 15 Folien im Lehrstuhl-Design. Die Inhalte liegen als Stichpunkte vor.',
+        result:'PowerPoint-Datei mit 15 Folien',
+        criteria:['Lehrstuhl-Vorlage eingehalten','Pro Folie eine klare Kernaussage','Quellen auf der letzten Folie']},
+      {id:'p5', type:'paid', title:'Testpersonen für eine Usability-Studie betreuen', provider:'Fachgebiet Mensch-Computer-Interaktion', hours:4, pay:60, remote:false, deadlineDays:8,
+        need:['Kommunikation','Organisation'], gains:['Kommunikation','Organisation'], contact:'Sven Kramer',
+        desc:'Bei unserer Studie zu einer Lern-App begrüßt du Testpersonen, erklärst den Ablauf und achtest auf den Zeitplan.',
+        result:'Ablaufprotokolle von acht Terminen',
+        criteria:['Alle Termine pünktlich betreut','Einverständniserklärungen vollständig','Protokolle am selben Tag abgegeben']},
+      {id:'p6', type:'paid', title:'Englische Abstracts Korrektur lesen', provider:'Lehrstuhl für Innovationsmanagement', hours:2, pay:30, remote:true, deadlineDays:3,
+        need:['Englisch','Lektorat'], gains:['Englisch','Lektorat'], contact:'Dr. Lea Hoffmann',
+        desc:'Fünf englische Abstracts für eine Konferenz brauchen einen letzten Blick auf Grammatik, Stil und Länge.',
+        result:'Korrigierte Abstracts im Änderungsmodus',
+        criteria:['Grammatik und Rechtschreibung korrigiert','Jedes Abstract unter 250 Wörtern','Änderungen nachvollziehbar markiert']},
+      {id:'p7', type:'paid', title:'Literaturdatenbank für ein Forschungsprojekt anlegen', provider:'Lehrstuhl für Wirtschaftsinformatik', hours:10, pay:150, remote:true, deadlineDays:7,
+        need:['Recherche','Datenbanken'], gains:['Recherche','Datenbanken'], contact:'Dr. Jana Wolff',
+        desc:'Für ein Forschungsprojekt zu digitalen Plattformen baust du eine durchsuchbare Literaturdatenbank mit rund 300 Einträgen auf.',
+        result:'Gefüllte Datenbank und eine kurze Anleitung',
+        criteria:['Rund 300 Einträge mit vollständigen Metadaten','Einheitliche Kategorien','Kurze Anleitung für das Team']},
+      {id:'c1', type:'paid', title:'Interviewtranskripte anonymisieren', provider:'Lehrstuhl für Wirtschaftsinformatik', hours:3, pay:45, remote:true, deadlineDays:2, closed:true,
+        need:['Sorgfalt','Datenschutz'], gains:['Sorgfalt','Datenschutz'], contact:'Dr. Jana Wolff',
+        desc:'Zwölf Interviewtranskripte werden anonymisiert, bevor sie ins Projektarchiv gehen.',
+        result:'Anonymisierte Transkripte als PDF',
+        criteria:['Namen, Orte und Firmen sind ersetzt','Einheitliche Platzhalter wie [Person A]','Kurzes Änderungsprotokoll']}
+    ],
+    apps: [
+      {id:'a1', gigId:'p1', who:'tim', status:'applied', t:1,
+        text:'Pivot-Tabellen und SVERWEIS nutze ich im Statistik-Tutorium jede Woche. Die Auswertung kann ich bis Mittwoch fertig haben.'},
+      {id:'a2', gigId:'p1', who:'aylin', status:'applied', t:2,
+        text:'Ich habe gerade den Python-Skill-Check bestanden und möchte zeigen, dass ich Daten auch in Excel sauber aufbereite.'},
+      {id:'a3', gigId:'c1', who:'jonas', status:'submitted', t:3, text:'', link:'https://nextcloud.uni-beispiel.de/s/transkripte-anonym'}
+    ],
+    saved: [],
+    pass: []
+  };
+}
+
+const EXAMPLES = [
+  {label:'Literatur in Zotero sortieren', text:'Brauche jemanden, der ca. 150 Literaturquellen in Zotero sortiert und verschlagwortet.'},
+  {label:'Umfragedaten aufbereiten', text:'Umfragedaten aus unserer Lehrevaluation in Excel aufbereiten.'},
+  {label:'Folien gestalten', text:'Folien für einen Gastvortrag im Seminar gestalten.'}
+];
+
+const AI_TEMPLATES = [
+  {keys:['zotero','literatur','quellen','bibliograf','bibliograph'], d:{
+    title:'Literaturliste in Zotero aufräumen',
+    desc:'Für unser Forschungsprojekt haben wir rund 150 Literaturquellen gesammelt. Du sortierst sie in Zotero in eine klare Ordnerstruktur und vergibst einheitliche Schlagwörter, damit das Team schnell findet, was es braucht.',
+    result:'Aufgeräumte Zotero-Gruppenbibliothek und eine kurze Notiz zu offenen Fragen',
+    criteria:['Alle ca. 150 Quellen liegen in einem passenden Ordner','Jede Quelle hat 2–4 Schlagwörter aus unserer Liste','Dubletten sind entfernt und in der Notiz vermerkt'],
+    skills:['Recherche','Sorgfalt','Zotero'], hours:4, pay:60, deadlineDays:7, remote:true}},
+  {keys:['excel','umfrage','tabelle','evaluation','daten'], d:{
+    title:'Umfragedaten in Excel aufbereiten',
+    desc:'Die Rohdaten unserer Umfrage liegen als Export vor. Du bereinigst sie, fasst die Ergebnisse pro Frage zusammen und baust eine übersichtliche Auswertung mit Diagrammen.',
+    result:'Excel-Datei mit bereinigten Daten und einer Übersichtsseite',
+    criteria:['Leere und doppelte Antworten sind entfernt','Jede Frage hat eine Auswertung mit Diagramm','Kurze Notiz zu Auffälligkeiten'],
+    skills:['Excel','Datenaufbereitung'], hours:4, pay:60, deadlineDays:6, remote:true}},
+  {keys:['website','webseite','homepage','html','teamseite'], d:{
+    title:'Teamseite der Website aktualisieren',
+    desc:'Auf unserer Website sind Profile und Links veraltet. Du pflegst neue Inhalte ein und prüfst, dass alles auch auf dem Handy gut aussieht.',
+    result:'Aktualisierte Seite auf dem Testserver',
+    criteria:['Alle neuen Inhalte sind eingepflegt','Keine toten Links mehr','Seite funktioniert auf dem Handy'],
+    skills:['HTML','CSS'], hours:5, pay:75, deadlineDays:10, remote:true}},
+  {keys:['folie','präsentation','praesentation','powerpoint','vortrag','slides'], d:{
+    title:'Folien für einen Gastvortrag gestalten',
+    desc:'Für einen Gastvortrag brauchen wir rund 15 Folien im Lehrstuhl-Design. Die Inhalte liegen als Stichpunkte vor, du machst daraus klare, gut lesbare Folien.',
+    result:'Foliensatz mit rund 15 Folien',
+    criteria:['Lehrstuhl-Vorlage eingehalten','Pro Folie eine klare Kernaussage','Quellen auf der letzten Folie'],
+    skills:['PowerPoint','Gestaltung'], hours:3, pay:45, deadlineDays:5, remote:true}}
+];
+
+const OTHER_FEEDBACK = [
+  'Schnell, sorgfältig und gut erklärt. Gerne wieder!',
+  'Hat genau gepasst, auch die Rückfragen waren klug.',
+  'Sehr zuverlässig, Abgabe einen Tag vor der Deadline.'
+];
+const STEPS = ['Beworben','Angenommen','Abgegeben','Bestätigt'];
+const STEP_IDX = {applied:0, accepted:1, submitted:2, confirmed:3, rejected:0};
+const FILTERS = [['alle','Alle'],['starter','Starter'],['paid','Bezahlt'],['remote','Remote']];
+
+/* ================= Zustand ================= */
+let S = load();
+let UI = freshUI();
+const timers = new Set();
+
+function load(){
+  try{ const raw = localStorage.getItem(KEY); if(raw){ const d = JSON.parse(raw); if(d && d.v === 2 && Array.isArray(d.gigs)) return d; } }catch(e){}
+  return seed();
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function initialView(){
+  try{ const v = localStorage.getItem(VKEY); if(v === 'studi' || v === 'anbieter' || v === 'beide') return v; }catch(e){}
+  return NARROW.matches ? 'studi' : 'beide';
+}
+function freshUI(view){
+  return {view: view || initialView(), sTab:'feed', pTab:'overview', filter:'alle', sheet:null, modal:null,
+    draft:null, aiInput:'', aiLoading:null, aiError:'', scroll:{}, links:{}, fresh:null, jump:null, guide:false, ob:freshOb()};
+}
+function freshOb(){
+  return {step:0, busy:false, mail:'lena.becker@stud.uni-beispiel.de', study:'Informatik (B.Sc.)', sem:1,
+    skills:['Python-Grundlagen','Excel','Recherche','Englisch','Canva'], hours:6};
+}
+function later(ms, fn){ const t = setTimeout(()=>{ timers.delete(t); fn(); }, ms); timers.add(t); return t; }
+
+/* ================= Helfer ================= */
+const $ = (sel, el) => (el || document).querySelector(sel);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const gigById = id => S.gigs.find(g => g.id === id);
+const appById = id => S.apps.find(a => a.id === id);
+const appsFor = gid => S.apps.filter(a => a.gigId === gid);
+const lenaApp = gid => S.apps.find(a => a.gigId === gid && a.who === 'lena');
+const isMine = g => g && g.provider === ME;
+const fits = g => g.hours <= S.user.hours * Math.max(1, g.deadlineDays / 7);
+const euro = n => `${n} €`;
+const inDays = d => d <= 0 ? 'heute' : d === 1 ? 'morgen' : `in ${d} Tagen`;
+const today = () => new Date().toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'numeric'});
+const nid = p => p + (++S.n);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const slug = s => s.toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
+const provLabel = p => p === 'Proovy' ? 'Proovy · Starter-Gig' : p;
+function skillMatch(a, b){ a = a.toLowerCase(); b = b.toLowerCase(); return a.includes(b) || b.includes(a); }
+function confirmedSkills(){ const out = []; S.pass.forEach(e => e.skills.forEach(s => { if(!out.includes(s)) out.push(s); })); return out; }
+function avgStars(entries){ if(!entries.length) return ''; const v = entries.reduce((s,e)=>s+e.stars,0)/entries.length; return v.toFixed(1).replace('.', ','); }
+function student(who){
+  if(who === 'lena') return {name:S.user.name, first:S.user.first, study:S.user.study, sem:S.user.sem, entries:S.pass, confirmed:confirmedSkills(), self:S.user.skills};
+  const p = PEOPLE[who]; return Object.assign({first:p.name.split(' ')[0]}, p);
+}
+const initials = name => {
+  const all = String(name).split(/\s+/).filter(Boolean); const w = all.filter(x => !/\.$/.test(x)); const p = w.length ? w : all;
+  return (p.length > 1 ? p[0][0] + p[p.length - 1][0] : p[0].slice(0,2)).toUpperCase();
+};
+const defaultLink = g => g.link || `https://nextcloud.uni-beispiel.de/s/${slug(g.title)}`;
+function defaultText(g){
+  return `Hi, ich bin Lena und studiere Informatik im 1. Semester. Ich arbeite sorgfältig, lerne schnell und will neben dem Studium Praxis sammeln. Die ${g.hours} h plane ich fest vor der Deadline ein. Mein Skill-Pass ist angehängt.`.slice(0,300);
+}
+
+const IC = {
+  check:'<path d="M5 12.5l4.2 4.2L19 7"/>',
+  feed:'<rect x="5" y="3.5" width="14" height="11" rx="2.5"/><path d="M7.5 18h9M9.5 21h5"/>',
+  brief:'<rect x="3.5" y="7" width="17" height="12.5" rx="2.5"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3.5 12.5h17"/>',
+  pass:'<rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="11" r="2.2"/><path d="M5.8 16.5c.6-1.6 1.8-2.4 3.2-2.4s2.6.8 3.2 2.4M14.5 9.5h3.5M14.5 13h3.5"/>',
+  bookmark:'<path d="M7 4h10v16l-5-3.5L7 20z"/>',
+  share:'<path d="M12 15V4M8 7.5L12 3.5l4 4M6 11v7.5A1.5 1.5 0 0 0 7.5 20h9a1.5 1.5 0 0 0 1.5-1.5V11"/>',
+  spark:'<path d="M12 3.5l1.9 5 5 1.9-5 1.9-1.9 5-1.9-5-5-1.9 5-1.9zM18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/>',
+  grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+  users:'<circle cx="9" cy="8.5" r="3"/><path d="M3.5 19c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/><circle cx="16.5" cy="9.5" r="2.4"/><path d="M15.5 14.6c2.2-.2 4 1 4.8 3.6"/>',
+  link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  shield:'<path d="M12 3.5l7 2.8v5.2c0 4.3-3 7.6-7 9-4-1.4-7-4.7-7-9V6.3z"/><path d="M8.8 12.2l2.2 2.2 4.2-4.6"/>',
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  split:'<path d="M12 4v6M12 10l-6 6v4M12 10l6 6v4"/>'
+};
+const icon = (n, cls) => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true">${IC[n] || ''}</svg>`;
+const STAR = '<path d="M12 3.6l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.6l-5.1 2.7 1-5.7-4.1-4 5.7-.8z"/>';
+const stars = (n, label) => `<span class="stars" role="img" aria-label="${n} von 5 Sternen${label ? ' ' + label : ''}">${[1,2,3,4,5].map(i => `<svg class="star ${i <= n ? 'on' : 'off'}" viewBox="0 0 24 24" aria-hidden="true">${STAR}</svg>`).join('')}</span>`;
+const mark = cls => `<svg class="mk${cls ? ' ' + cls : ''}" viewBox="0 0 72 72" aria-hidden="true"><circle class="mk-c" cx="36" cy="36" r="36"/><path class="mk-p" d="M19 37 L31 50 L54 22"/></svg>`;
+const logo = () => `<span class="logo" role="img" aria-label="Proovy"><span aria-hidden="true">proo</span>${mark()}<span aria-hidden="true">y</span></span>`;
+function avatar(p){
+  if(p === 'Proovy') return `<span class="av pv" aria-hidden="true">${mark()}</span>`;
+  const m = PROV[p] || {s:initials(p), c:'im'};
+  return `<span class="av ${m.c}" aria-hidden="true">${m.s}</span>`;
+}
+const person = name => `<span class="av person" aria-hidden="true">${esc(initials(name))}</span>`;
+
+/* ================= Ansicht & Toasts ================= */
+function effView(){ return NARROW.matches && UI.view === 'beide' ? 'studi' : UI.view; }
+function sideVisible(side){ const el = side === 'studi' ? $('#sideStudi') : $('#sideAnbieter'); return !!el && getComputedStyle(el).display !== 'none'; }
+function setView(v){ UI.view = v; try{ localStorage.setItem(VKEY, v); }catch(e){} renderBar(); restoreScroll(); }
+function showSide(side){ if(sideVisible(side)) return; setView(NARROW.matches ? side : 'beide'); }
+
+let tid = 0; const tActs = new Map();
+function toast(side, msg, action){
+  let box = side === 'global' ? $('#t-global') : (sideVisible(side) ? $('#t-' + side) : null);
+  if(!box){ box = $('#t-global'); if(!action && side !== 'global') action = {label:'Zeigen', act:()=>showSide(side)}; }
+  const id = ++tid; if(action) tActs.set(id, action.act);
+  const el = document.createElement('div'); el.className = 'toast';
+  el.innerHTML = `<span class="tico">${icon('check')}</span><span>${esc(msg)}</span>${action ? `<button type="button" data-act="toast-act" data-tid="${id}">${esc(action.label)}</button>` : ''}`;
+  box.appendChild(el);
+  while(box.children.length > 3) box.firstElementChild.remove();
+  setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>{ el.remove(); tActs.delete(id); }, 260); }, action ? 5600 : 3400);
+}
+
+/* ================= Rendern ================= */
+function preserveFocus(fn){
+  const a = document.activeElement; const id = a && a.id; let s = null, e = null;
+  try{ s = a.selectionStart; e = a.selectionEnd; }catch(_){}
+  fn();
+  if(id && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA')){
+    const el = document.getElementById(id);
+    if(el && el !== document.activeElement){ el.focus({preventScroll:true}); try{ if(s != null) el.setSelectionRange(s, e); }catch(_){} }
+  }
+}
+function restoreScroll(){
+  document.querySelectorAll('[data-scroll]').forEach(el => { const v = UI.scroll[el.dataset.scroll]; if(v != null) el.scrollTop = v; });
+  if(UI.jump){
+    const feed = $('.feed'); const target = feed && feed.querySelector(`[data-gid="${UI.jump}"]`);
+    if(target){ feed.scrollTop = target.offsetTop; UI.scroll.feed = target.offsetTop; }
+    UI.jump = null;
+  }
+}
+function renderBar(){
+  const v = effView();
+  $('#stage').dataset.view = v;
+  document.querySelectorAll('.seg [data-v]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+}
+function renderStudent(){ preserveFocus(()=>{ $('#studi').innerHTML = studentHTML(); }); restoreScroll(); }
+function renderProvider(){ preserveFocus(()=>{ $('#anbieter').innerHTML = providerHTML(); }); restoreScroll(); }
+function renderAll(){ renderBar(); renderStudent(); renderProvider(); renderGuide(); }
+function commit(){ save(); renderStudent(); renderProvider(); if(UI.sheet && UI.sheet.kind === 'details') renderSheet(true); renderGuide(); }
+
+/* ---------- Studi-App ---------- */
+function studentHTML(){
+  if(!S.onboarded) return onboardingHTML();
+  const body =UI.sTab === 'mine' ? mineHTML() : UI.sTab === 'pass' ? passHTML() : feedHTML();
+  if(UI.fresh) later(900, ()=>{ UI.fresh = null; });
+  return body + tabbarHTML();
+}
+function tabbarHTML(){
+  const active = S.apps.filter(a => a.who === 'lena' && ['applied','accepted','submitted'].includes(a.status)).length;
+  const items = [['feed','Feed','feed',0],['mine','Meine Gigs','brief',active],['pass','Skill-Pass','pass',S.pass.length]];
+  return `<nav class="tabbar" aria-label="Studi-App">${items.map(([k,l,ic,c]) =>
+    `<button type="button" class="tab" data-act="stab" data-k="${k}"${UI.sTab === k ? ' aria-current="page"' : ''}><span class="ti">${icon(ic)}</span>${l}${c ? `<span class="tbadge" aria-label="${c} Einträge">${c}</span>` : ''}</button>`).join('')}</nav>`;
+}
+function feedGigs(){
+  let list = S.gigs.filter(g => !g.closed);
+  if(UI.filter === 'starter') list = list.filter(g => g.type === 'starter');
+  if(UI.filter === 'paid') list = list.filter(g => g.type === 'paid');
+  if(UI.filter === 'remote') list = list.filter(g => g.remote);
+  const rank = g => g.isNew ? 0 : fits(g) ? 1 : 2;
+  return list.map((g,i)=>({g,i})).sort((a,b)=> rank(a.g) - rank(b.g) || (b.g.createdAt || 0) - (a.g.createdAt || 0) || a.i - b.i).map(x => x.g);
+}
+function feedHTML(){
+  const list = feedGigs();
+  const fitN = S.gigs.filter(g => !g.closed && fits(g)).length;
+  return `<header class="s-head">
+    <div class="row-between">${logo()}<span class="fitcount">${icon('clock')}${fitN} Gigs passen in deine Woche</span></div>
+    <div class="chips" role="group" aria-label="Gigs filtern">${FILTERS.map(([k,l]) => `<button type="button" class="chip" data-act="filter" data-k="${k}" aria-pressed="${UI.filter === k}">${l}</button>`).join('')}</div>
+  </header>
+  <div class="s-body"><div class="scroll feed" data-scroll="feed" aria-label="Gigs für dich">${list.length ? list.map(cardHTML).join('') :
+    `<div class="slot"><div class="empty"><h3>Hier ist gerade nichts.</h3><p>Für diesen Filter gibt es im Moment keine Gigs.</p><button type="button" class="btn ghost sm" data-act="filter" data-k="alle">Alle Gigs zeigen</button></div></div>`}</div></div>`;
+}
+function skillChip(sk){
+  const conf = confirmedSkills().some(c => skillMatch(c, sk));
+  const have = conf || S.user.skills.some(u => skillMatch(u, sk));
+  return `<span class="sk${have ? ' have' : ''}">${conf ? icon('check') : ''}${esc(sk)}</span>`;
+}
+function actionBtn(g, a){
+  if(!a) return g.type === 'starter'
+    ? `<button type="button" class="btn primary grow" data-act="apply" data-id="${g.id}">Mit 1 Klick bewerben</button>`
+    : `<button type="button" class="btn primary grow" data-act="apply" data-id="${g.id}">Kurzbewerbung</button>`;
+  switch(a.status){
+    case 'applied': return `<button type="button" class="btn done grow" disabled>${icon('check')}Beworben</button>`;
+    case 'accepted': return `<button type="button" class="btn lime grow" data-act="stab" data-k="mine">Ergebnis abgeben${icon('arrow')}</button>`;
+    case 'submitted': return `<button type="button" class="btn done grow" disabled>Abgegeben · wird geprüft</button>`;
+    case 'confirmed': return `<button type="button" class="btn done grow" data-act="stab" data-k="pass">${icon('check')}Im Skill-Pass</button>`;
+    default: return `<button type="button" class="btn ghost grow" disabled>Abgesagt</button>`;
+  }
+}
+const typeTag = g => g.type === 'starter' ? '<span class="pill tag-starter">Starter · Skill-Check</span>' : `<span class="pill tag-paid">Bezahlt · ${Math.round(g.pay / g.hours)} €/h</span>`;
+const fitTag = g => fits(g) ? `<span class="pill fit-yes">${icon('check')}passt in deine Woche</span>` : '<span class="pill fit-no">eher knapp</span>';
+const factsHTML = g => `<dl class="facts">
+        <div><dt>Aufwand</dt><dd>${g.hours} h</dd></div>
+        <div><dt>Deadline</dt><dd>${inDays(g.deadlineDays)}</dd></div>
+        <div><dt>Vergütung</dt><dd>${g.type === 'starter' ? 'Skill-Check' : euro(g.pay)}</dd></div>
+        <div><dt>Ort</dt><dd>${g.remote ? 'remote' : 'vor Ort'}</dd></div>
+      </dl>`;
+const gainHTML = g => `<div class="gain">${icon('pass')}<div>Das kommt in deinen Skill-Pass:<strong>+ ${g.gains.map(esc).join(' · ')}</strong></div></div>`;
+const saveBtn = g => { const saved = S.saved.includes(g.id); return `<button type="button" class="btn ghost" data-act="save" data-id="${g.id}" aria-pressed="${saved}">${icon('bookmark')}${saved ? 'Gemerkt' : 'Merken'}</button>`; };
+function cardHTML(g){
+  const a = lenaApp(g.id);
+  return `<div class="slot" data-gid="${g.id}"><article class="gcard" data-act="details" data-id="${g.id}" aria-label="${esc(g.title)}">
+    <div class="gc-top">${avatar(g.provider)}<span class="gc-prov">${esc(provLabel(g.provider))}</span>${g.isNew ? '<span class="pill new">Neu</span>' : ''}</div>
+    <div class="gc-main">
+      <div class="gc-tags">${typeTag(g)}${fitTag(g)}</div>
+      <h3 class="gc-title"><button type="button" class="tbtn" data-act="details" data-id="${g.id}">${esc(g.title)}</button></h3>
+      ${factsHTML(g)}
+      <div class="need"><span class="mini">Benötigt:</span>${g.need.map(skillChip).join('')}</div>
+      ${gainHTML(g)}
+    </div>
+    <div class="gc-foot">${saveBtn(g)}${actionBtn(g, a)}</div>
+  </article></div>`;
+}
+function mgHTML(a){
+  const g = gigById(a.gigId); if(!g) return '';
+  const idx = STEP_IDX[a.status];
+  let act = '';
+  if(a.status === 'applied') act = `<p class="mg-note">${icon('clock')}${g.type === 'starter' ? 'Wird gerade freigeschaltet …' : `Warte auf Antwort von ${esc(g.contact || g.provider)}.`}</p>`;
+  else if(a.status === 'accepted'){
+    const val = UI.links[a.id] != null ? UI.links[a.id] : defaultLink(g);
+    act = `<div class="submit"><label for="link-${a.id}">Link zu deinem Ergebnis</label>
+      <div class="submit-row"><input id="link-${a.id}" type="text" inputmode="url" value="${esc(val)}"><button type="button" class="btn primary" data-act="submit" data-id="${a.id}">Abgeben</button></div>
+      <p class="mini">Deadline ${inDays(g.deadlineDays)} · ${g.criteria.length} Abnahmekriterien</p></div>`;
+  }
+  else if(a.status === 'submitted') act = `<p class="mg-note">${icon('clock')}${g.type === 'starter' ? 'Proovy prüft deinen Skill-Check automatisch …' : `${esc(g.provider)} prüft dein Ergebnis.`}</p>`;
+  else if(a.status === 'confirmed') act = `<div class="row-between">${stars(a.stars || 5)}<button type="button" class="btn ghost sm" data-act="stab" data-k="pass">Im Skill-Pass ansehen</button></div>`;
+  else act = `<p class="mg-note">Diesmal hat es nicht geklappt. Im Feed warten weitere Gigs.</p>`;
+  return `<article class="mg">
+    <div class="gc-top">${avatar(g.provider)}<div class="mg-tt"><h3>${esc(g.title)}</h3><span>${esc(provLabel(g.provider))} · ${g.type === 'starter' ? 'Skill-Check' : euro(g.pay)} · ${g.hours} h</span></div></div>
+    <ol class="steps" aria-label="Fortschritt">${STEPS.map((s,i) => `<li class="step ${a.status === 'rejected' ? '' : i < idx ? 'done' : i === idx ? 'now' : ''}"${i === idx && a.status !== 'rejected' ? ' aria-current="step"' : ''}><i></i>${s}</li>`).join('')}</ol>
+    ${act}
+  </article>`;
+}
+function mineHTML(){
+  const mine = S.apps.filter(a => a.who === 'lena');
+  const order = {accepted:0, applied:1, submitted:2, rejected:3, confirmed:4};
+  const active = mine.filter(a => a.status !== 'confirmed').sort((x,y) => order[x.status] - order[y.status] || y.t - x.t);
+  const done = mine.filter(a => a.status === 'confirmed').sort((x,y) => y.t - x.t);
+  const saved = S.saved.map(gigById).filter(Boolean);
+  let html = `<header class="s-head"><div class="row-between"><h2 class="s-title">Meine Gigs</h2></div></header><div class="s-body"><div class="scroll" data-scroll="mine"><div class="pad">`;
+  if(!mine.length && !saved.length){
+    html += `<div class="empty"><h3>Noch keine Gigs</h3><p>Bewirb dich im Feed. Ein Skill-Check dauert ca. 1 h und bringt deinen ersten Eintrag in den Skill-Pass.</p><button type="button" class="btn primary sm" data-act="stab" data-k="feed">Zum Feed</button></div>`;
+  }
+  if(active.length) html += `<p class="sh"><span>Laufend</span><span>${active.length}</span></p>` + active.map(mgHTML).join('');
+  if(done.length) html += `<p class="sh"><span>Abgeschlossen</span><span>${done.length}</span></p>` + done.map(mgHTML).join('');
+  if(saved.length) html += `<p class="sh"><span>Gemerkt</span><span>${saved.length}</span></p>` + saved.map(g => `<div class="saved-row">${avatar(g.provider)}<div class="mg-tt"><h3>${esc(g.title)}</h3><span>${g.hours} h · ${g.type === 'starter' ? 'Skill-Check' : euro(g.pay)} · ${inDays(g.deadlineDays)}</span></div><button type="button" class="btn ghost sm" data-act="open-gig" data-id="${g.id}">Ansehen</button></div>`).join('');
+  return html + `</div></div></div>`;
+}
+function entryHTML(e){
+  return `<article class="entry${UI.fresh === e.id ? ' fresh' : ''}">
+    <div class="gc-top">${avatar(e.provider)}<div class="mg-tt"><h3>${esc(e.title)}</h3><span>${esc(provLabel(e.provider))} · ${esc(e.date)}</span></div></div>
+    <div class="row-between">${stars(e.stars)}<span class="pill ${e.type === 'starter' ? 'tag-starter' : 'tag-paid'}">${e.type === 'starter' ? 'Skill-Check' : 'Bezahlt · ' + euro(e.pay)}</span></div>
+    <div class="need">${e.skills.map(s => `<span class="sk conf">${icon('check')}${esc(s)}</span>`).join('')}</div>
+    ${e.feedback ? `<p class="quote">„${esc(e.feedback)}“</p>` : ''}
+  </article>`;
+}
+function passHTML(){
+  const L = student('lena'); const n = S.pass.length;
+  const hours = S.pass.reduce((s,e) => s + (e.hours || 0), 0);
+  return `<header class="s-head"><div class="row-between"><h2 class="s-title">Skill-Pass</h2><button type="button" class="btn ghost sm" data-act="share">${icon('share')}Teilen</button></div></header>
+  <div class="s-body"><div class="scroll" data-scroll="pass"><div class="pad">
+    <section class="pass-card" aria-label="Lenas Skill-Pass">
+      <svg class="deco" viewBox="0 0 60 72" aria-hidden="true"><path d="M7 40 L25 63 L54 8"/></svg>
+      <p class="pass-lbl">Skill-Pass · statt Lebenslauf</p>
+      <div><p class="pass-name">${esc(L.name)}</p><p class="pass-meta">${esc(L.study)} · ${L.sem}. Semester</p></div>
+      <div><span class="pill tag-starter">${icon('shield')}Uni-Mail bestätigt</span></div>
+      <div class="pass-stats">
+        <div><b>${n}</b><span>bestätigt</span></div>
+        <div><b>${n ? avgStars(S.pass) : '–'}</b><span>Ø Sterne</span></div>
+        <div><b>${hours}</b><span>h Praxis</span></div>
+      </div>
+    </section>
+    <p class="sh"><span>Bestätigt durch Gigs</span><span>${n}</span></p>
+    ${n ? S.pass.map(entryHTML).join('') : `<div class="empty"><h3>Noch keine bestätigten Einträge</h3><p>Starte mit einem Skill-Check: ca. 1 h, remote, und Proovy bestätigt ihn automatisch.</p><button type="button" class="btn primary sm" data-act="find-starter">Skill-Check finden</button></div>`}
+    <p class="sh"><span>Selbst angegeben</span><span>nicht bestätigt</span></p>
+    <div class="need">${L.self.map(s => `<span class="sk self">${esc(s)}</span>`).join('')}</div>
+    <div class="linkrow">${icon('link')}<span>${esc(S.user.github)}</span></div>
+    <button type="button" class="btn primary" data-act="share">${icon('share')}Skill-Pass teilen</button>
+  </div></div></div>`;
+}
+function miniPass(L){
+  const n = L.entries.length;
+  return `<div class="mini-pass">
+    <span class="mp-lbl">${icon('pass')}Dein Skill-Pass wird angehängt</span>
+    <div class="mp-b"><b>${esc(L.name)}</b><span>${esc(L.study)} · ${L.sem}. Semester · Uni-Mail bestätigt</span></div>
+    <span class="mp-n">${n ? `${n === 1 ? '1 bestätigter Eintrag' : n + ' bestätigte Einträge'} · Ø ${avgStars(L.entries)} Sterne` : 'Noch keine bestätigten Einträge'}</span>
+    <div class="need">${L.confirmed.map(s => `<span class="sk conf">${icon('check')}${esc(s)}</span>`).join('')}${L.self.slice(0,3).map(s => `<span class="sk self">${esc(s)}</span>`).join('')}</div>
+  </div>`;
+}
+let sheetShown = null;
+function applySheetHTML(g, txt){
+  return `<div class="grab" aria-hidden="true"></div>
+    <div class="row-between"><div class="stack-2"><p class="eyebrow">Kurzbewerbung</p><h3 id="shT" class="sheet-t">${esc(g.title)}</h3><p class="mini">${esc(g.provider)} · ${g.hours} h · ${euro(g.pay)}</p></div><button type="button" class="icon-btn" data-act="sheet-close" aria-label="Schließen">${icon('x')}</button></div>
+    ${miniPass(student('lena'))}
+    <div class="f"><label for="applyText">Warum passt der Gig zu dir?</label><textarea id="applyText" rows="5" maxlength="300">${esc(txt)}</textarea><span class="counter" id="applyCount">${txt.length}/300</span></div>
+    <div class="sheet-foot"><button type="button" class="btn primary grow" data-act="send-app">Absenden${icon('arrow')}</button></div>`;
+}
+function detailsSheetHTML(g){
+  const a = lenaApp(g.id);
+  return `<div class="grab" aria-hidden="true"></div>
+    <div class="row-between"><div class="gc-top">${avatar(g.provider)}<span class="gc-prov">${esc(provLabel(g.provider))}</span></div><button type="button" class="icon-btn" data-act="sheet-close" aria-label="Schließen">${icon('x')}</button></div>
+    <div class="gc-tags">${typeTag(g)}${fitTag(g)}${g.isNew ? '<span class="pill new">Neu</span>' : ''}</div>
+    <h3 id="shT" class="sheet-t big">${esc(g.title)}</h3>
+    ${factsHTML(g)}
+    <section class="dsec"><h4>Worum es geht</h4><p>${esc(g.desc)}</p></section>
+    <section class="dsec"><h4>Ergebnis</h4><p>${esc(g.result)}</p></section>
+    <section class="dsec"><h4>Abnahmekriterien</h4><ul class="crit-list">${g.criteria.map(c => `<li>${icon('check')}<span>${esc(c)}</span></li>`).join('')}</ul></section>
+    <section class="dsec"><h4>Skills</h4><div class="need">${g.need.map(skillChip).join('')}</div>${gainHTML(g)}</section>
+    <section class="dsec"><h4>Ansprechperson</h4><div class="ap-who">${person(g.contact)}<div><b>${esc(g.contact)}</b><span>${esc(g.provider === 'Proovy' ? 'Proovy · Starter-Gigs' : g.provider)}</span></div></div></section>
+    <div class="sheet-foot">${saveBtn(g)}${actionBtn(g, a)}</div>`;
+}
+function renderSheet(still){
+  const box = $('#studiSheet');
+  const s = UI.sheet; const g = s && gigById(s.gid);
+  if(!s || (!g && s.kind !== 'share')){ UI.sheet = null; sheetShown = null; box.innerHTML = ''; return; }
+  const old = box.querySelector('.sheet'); const keep = still && sheetShown === s.kind && old ? old.scrollTop : 0;
+  box.innerHTML = `<div class="scrim${still ? ' still' : ''}" data-act="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="shT">${s.kind === 'details' ? detailsSheetHTML(g) : s.kind === 'share' ? shareSheetHTML() : applySheetHTML(g, s.text)}</div></div>`;
+  const sh = box.querySelector('.sheet'); if(sh) sh.scrollTop = keep;
+  const first = sheetShown !== s.kind; sheetShown = s.kind;
+  if(first) setTimeout(()=>{ const b = box.querySelector(s.kind === 'apply' ? '[data-act="send-app"]' : s.kind === 'share' ? '[data-act="copy-link"]' : '[data-act="sheet-close"]'); if(b) b.focus({preventScroll:true}); }, still ? 30 : 320);
+}
+function closeSheet(){ UI.sheet = null; renderSheet(); }
+function openDetails(gid){ UI.sheet = {kind:'details', gid}; renderSheet(); }
+
+/* ---------- Onboarding ---------- */
+const SKILL_OPTIONS = ['Python-Grundlagen','Excel','Recherche','Englisch','Canva','PowerPoint','HTML & CSS','SQL','Statistik','Kommunikation'];
+function fitsCount(h){ return S.gigs.filter(g => !g.closed && g.hours <= h * Math.max(1, g.deadlineDays / 7)).length; }
+function onboardingHTML(){
+  const o = UI.ob; const st = o.step;
+  const top = st < 3 ? `<div class="ob-top"><div class="ob-dots" role="img" aria-label="Schritt ${st + 1} von 3">${[0,1,2].map(i => `<i class="${i <= st ? 'on' : ''}"></i>`).join('')}</div><button type="button" class="linkbtn" data-act="ob-skip">Überspringen</button></div>` : '';
+  let body = '';
+  if(st === 0) body = `<div class="ob-body">
+      <div class="ob-hero"><span class="ob-logo">${logo()}</span><h2>Kleine Gigs.<br>Echte Nachweise.</h2><p>Erledige kurze Aufgaben von Lehrstühlen und sammle bestätigte Einträge in deinem Skill-Pass.</p></div>
+      <div class="f"><label for="ob-mail">Deine Uni-Mail</label><input id="ob-mail" type="email" autocomplete="off" value="${esc(o.mail)}"></div>
+    </div>
+    <div class="ob-foot"><button type="button" class="btn primary" data-act="ob-next"${o.busy ? ' disabled' : ''}>${o.busy ? '<span class="spin sm"></span>Uni-Mail wird bestätigt …' : icon('shield') + 'Mit Uni-Mail anmelden'}</button><p class="mini">Mit der Uni-Mail bestätigen wir, dass du studierst.</p></div>`;
+  else if(st === 1) body = `<div class="ob-body">
+      <div class="stack-2">${o.verified ? `<span class="pill fit-yes ob-ok">${icon('shield')}Uni-Mail bestätigt</span>` : ''}<p class="eyebrow">Schritt 2 von 3</p><h2>Was studierst du?</h2></div>
+      <div class="f"><label for="ob-study">Studiengang</label><input id="ob-study" value="${esc(o.study)}"></div>
+      <div class="f"><span class="flabel" id="semL">Semester</span><div class="stepper" role="group" aria-labelledby="semL"><button type="button" data-act="ob-sem" data-d="-1" aria-label="Ein Semester weniger">−</button><output id="ob-semv" aria-live="polite">${o.sem}. Semester</output><button type="button" data-act="ob-sem" data-d="1" aria-label="Ein Semester mehr">+</button></div></div>
+    </div>
+    <div class="ob-foot"><button type="button" class="btn primary" data-act="ob-next">Weiter${icon('arrow')}</button></div>`;
+  else if(st === 2){
+    const missing = 3 - o.skills.length;
+    body = `<div class="ob-body">
+      <div class="stack-2"><p class="eyebrow">Schritt 3 von 3</p><h2>Was kannst du schon?</h2><p class="mini">Wähle 3 bis 5. Bestätigt werden deine Skills später durch Gigs.</p></div>
+      <div class="ob-chips" role="group" aria-label="Skills">${SKILL_OPTIONS.map(s => `<button type="button" class="chip" data-act="ob-skill" data-s="${esc(s)}" aria-pressed="${o.skills.includes(s)}">${esc(s)}</button>`).join('')}</div>
+      <div class="f"><label for="ob-hours">Freie Stunden pro Woche</label><div class="hours-row"><input id="ob-hours" type="range" min="2" max="20" step="1" value="${o.hours}"><output id="ob-hv" for="ob-hours">${o.hours} h</output></div></div>
+      <p class="ob-live">${icon('clock')}<span><b id="ob-livev">${fitsCount(o.hours)}</b> Gigs passen in deine Woche</span></p>
+    </div>
+    <div class="ob-foot"><button type="button" class="btn primary" data-act="ob-next"${missing > 0 ? ' disabled' : ''}>${missing > 0 ? `Noch ${missing} Skill${missing === 1 ? '' : 's'} wählen` : 'Fertig'}</button></div>`;
+  }
+  else body = `<div class="ob-body">
+      <div class="ob-moment">${mark('ob-mark')}<div class="big-n" id="ob-count">${fitsCount(S.user.hours)}</div><h2>Gigs passen in deine Woche</h2><p>Bei ${S.user.hours} h pro Woche. Starte mit einem Skill-Check: ca. 1 h, und dein Skill-Pass hat den ersten bestätigten Eintrag.</p></div>
+    </div>
+    <div class="ob-foot"><button type="button" class="btn primary" data-act="ob-finish">Zum Feed${icon('arrow')}</button></div>`;
+  return `<div class="ob">${top}${body}</div>`;
+}
+function obApply(){
+  const o = UI.ob;
+  S.user.study = String(o.study || '').trim() || 'Informatik (B.Sc.)';
+  S.user.sem = o.sem; S.user.hours = o.hours;
+  S.user.skills = o.skills.length >= 3 ? o.skills.slice() : freshOb().skills;
+}
+function obNext(){
+  const o = UI.ob;
+  if(o.step === 0){
+    if(o.busy) return; o.busy = true; renderStudent();
+    later(800, ()=>{ o.busy = false; o.step = 1; o.verified = true; renderStudent(); });
+  } else if(o.step === 1){ o.step = 2; renderStudent(); }
+  else if(o.step === 2){
+    if(o.skills.length < 3) return;
+    obApply(); o.step = 3; save(); renderStudent(); countUp();
+  }
+}
+function countUp(){
+  const el = $('#ob-count'); if(!el || REDUCED.matches) return;
+  const target = +el.textContent; const t0 = performance.now();
+  const tick = now => { const p = Math.min(1, (now - t0) / 750); el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))); if(p < 1) requestAnimationFrame(tick); };
+  el.textContent = '0'; requestAnimationFrame(tick);
+}
+function obFinish(skip){
+  if(skip) obApply();
+  S.onboarded = true; UI.sTab = 'feed'; UI.scroll.feed = 0;
+  commit();
+  if(skip) toast('studi', `Angemeldet als ${S.user.name}.`);
+}
+function obSkill(s){
+  const o = UI.ob; const i = o.skills.indexOf(s);
+  if(i >= 0) o.skills.splice(i, 1);
+  else if(o.skills.length >= 5){ toast('studi', 'Maximal 5 Skills. Nimm erst einen raus.'); return; }
+  else o.skills.push(s);
+  renderStudent();
+}
+
+/* ---------- Demo-Ablauf ---------- */
+function renderGuide(){
+  const box = $('#guide'); const btn = $('[data-act="guide"]');
+  if(btn) btn.setAttribute('aria-expanded', String(!!UI.guide));
+  if(!box) return;
+  box.hidden = !UI.guide; if(!UI.guide){ box.innerHTML = ''; return; }
+  const fresh = S.gigs.filter(g => g.createdAt);
+  const lenaNew = S.apps.filter(a => a.who === 'lena' && fresh.some(g => g.id === a.gigId));
+  const steps = [
+    ['Lena meldet sich mit Uni-Mail an, wählt Skills und 6 h pro Woche.', !!S.onboarded],
+    ['Lena bewirbt sich mit 1 Klick auf den Python-Skill-Check und gibt ab. Erster Eintrag im Skill-Pass.', S.pass.some(e => e.type === 'starter')],
+    ['Wechsel zum Lehrstuhl: ein Satz in den KI-Assistenten, Entwurf prüfen, veröffentlichen.', fresh.length > 0],
+    ['Lena sieht den Gig oben im Feed und schickt eine Kurzbewerbung mit Skill-Pass.', lenaNew.length > 0],
+    ['Der Lehrstuhl nimmt Lena an, Lena gibt ihr Ergebnis ab.', lenaNew.some(a => a.status === 'submitted' || a.status === 'confirmed')],
+    ['Der Lehrstuhl bestätigt mit 5 Sternen. Zweiter Eintrag, diesmal bezahlt.', S.pass.some(e => e.type === 'paid')]
+  ];
+  const done = steps.filter(s => s[1]).length;
+  box.innerHTML = `<div class="row-between"><p class="guide-h">Demo-Ablauf · ca. 90 Sekunden</p><span class="mini">${done} von 6</span></div>
+    <ol>${steps.map(([t, ok], i) => `<li class="${ok ? 'ok' : ''}"><span class="gnum">${ok ? icon('check') : i + 1}</span><span>${t}</span></li>`).join('')}</ol>
+    <p class="mini">Tipp: Im KI-Assistenten den Beispiel-Chip „Literatur in Zotero sortieren“ nehmen.</p>`;
+}
+
+/* ---------- Feier (Peak-End) ---------- */
+function celebrate(e, first){
+  const layer = $('#studiCele');
+  const colors = ['var(--lime)','var(--green)','var(--white)','var(--mint)','var(--lime)'];
+  const pieces = REDUCED.matches ? '' : Array.from({length:48}, (_,i) => {
+    const x = (Math.random() * 100).toFixed(1), d = (Math.random() * .7).toFixed(2), dur = (1.9 + Math.random() * 1.5).toFixed(2);
+    const dx = Math.round(Math.random() * 140 - 70), rot = Math.round(Math.random() * 900 - 450);
+    return `<i class="confetti" style="left:${x}%;background:${colors[i % colors.length]};animation-delay:${d}s;animation-duration:${dur}s;--dx:${dx}px;--rot:${rot}deg"></i>`;
+  }).join('');
+  layer.innerHTML = `<div class="cele" role="dialog" aria-modal="true" aria-labelledby="celeT">${pieces}
+    <div class="cele-card">
+      ${mark('cele-mark')}
+      <p class="eyebrow">${first ? 'Erster Eintrag' : 'Neuer Eintrag'} im Skill-Pass</p>
+      <h3 id="celeT">${first ? 'Dein erster bestätigter Eintrag!' : 'Wieder etwas bewiesen!'}</h3>
+      <div class="cele-entry">
+        <div class="gc-top">${avatar(e.provider)}<b>${esc(e.title)}</b></div>
+        <div class="row-between">${stars(e.stars)}<span class="pill ${e.type === 'starter' ? 'tag-starter' : 'tag-paid'}">${e.type === 'starter' ? 'Skill-Check' : 'Bezahlt · ' + euro(e.pay)}</span></div>
+        <div class="need">${e.skills.map(s => `<span class="sk conf">${icon('check')}${esc(s)}</span>`).join('')}</div>
+      </div>
+      <p>${first ? 'Ab jetzt sehen Lehrstühle, was du kannst, und müssen es dir nicht einfach glauben.' : `Bestätigt von ${esc(e.provider)}. Dein Skill-Pass wächst mit jedem Gig.`}</p>
+      <div class="cele-act"><button type="button" class="btn primary" data-act="cele-go">Skill-Pass ansehen</button><button type="button" class="btn ghost" data-act="cele-close">Weiter</button></div>
+    </div></div>`;
+  layer.hidden = false;
+  $('#t-studi').innerHTML = '';
+  setTimeout(()=>{ const b = $('[data-act="cele-go"]'); if(b && sideVisible('studi')) b.focus({preventScroll:true}); }, 100);
+  if(!sideVisible('studi')) toast('global', 'Lenas Skill-Pass hat einen neuen Eintrag.', {label:'Zeigen', act:()=>showSide('studi')});
+}
+function closeCele(){ const l = $('#studiCele'); l.hidden = true; l.innerHTML = ''; }
+
+/* ---------- Anbieter ---------- */
+function gigStatus(g){
+  const as = appsFor(g.id);
+  if(as.some(a => a.status === 'confirmed')) return {k:'done', label:'Abgeschlossen'};
+  if(as.some(a => a.status === 'submitted')) return {k:'review', label:'Zu bestätigen'};
+  if(as.some(a => a.status === 'accepted')) return {k:'progress', label:'In Arbeit'};
+  const n = as.filter(a => a.status === 'applied').length;
+  return n ? {k:'apps', label: n === 1 ? '1 Bewerbung' : `${n} Bewerbungen`} : {k:'open', label:'Offen'};
+}
+function ownData(){
+  const own = S.gigs.filter(isMine).map((g,i)=>({g,i})).sort((a,b) => (b.g.createdAt || 0) - (a.g.createdAt || 0) || a.i - b.i).map(x => x.g);
+  const ids = new Set(own.map(g => g.id));
+  const apps = S.apps.filter(a => ids.has(a.gigId));
+  return {own, apps, fresh: apps.filter(a => a.status === 'applied'), review: apps.filter(a => a.status === 'submitted'),
+    open: own.filter(g => ['open','apps'].includes(gigStatus(g).k))};
+}
+function providerHTML(){
+  const D = ownData();
+  const nav = [['overview','Übersicht','grid',0],['new','Neuer Gig','spark',0],['apps','Bewerbungen','users',D.fresh.length],['review','Zu bestätigen','check',D.review.length]];
+  const main = UI.pTab === 'new' ? newGigHTML() : UI.pTab === 'apps' ? appsHTML(D) : UI.pTab === 'review' ? reviewHTML(D) : overviewHTML(D);
+  return `<aside class="d-side">
+    <div class="d-brand">${logo()}<span class="mini-lbl">für Lehrstühle</span></div>
+    <nav class="d-nav" aria-label="Anbieter">${nav.map(([k,l,ic,c]) => `<button type="button" data-act="ptab" data-k="${k}"${UI.pTab === k ? ' aria-current="page"' : ''}>${icon(ic)}${l}${c ? `<span class="cnt">${c}</span>` : ''}</button>`).join('')}</nav>
+    <div class="d-me">${person('Jana Wolff')}<div><b>Dr. Jana Wolff</b><span>${esc(ME)}</span></div></div>
+  </aside>
+  <div class="d-main" data-scroll="dmain">${main}</div>`;
+}
+function statusPill(st){ return `<span class="pill st-${st.k}">${esc(st.label)}</span>`; }
+function overviewHTML(D){
+  return `<div class="d-head"><div class="stack-2"><p class="eyebrow">${esc(ME)}</p><h2>Hallo, Jana</h2></div><button type="button" class="btn primary" data-act="ptab" data-k="new">${icon('spark')}Neuer Gig mit KI</button></div>
+  <div class="tiles">
+    <div class="tile"><b>${D.open.length}</b><span>Offene Gigs</span></div>
+    <button type="button" class="tile${D.fresh.length ? ' hot' : ''}" data-act="ptab" data-k="apps"><b>${D.fresh.length}</b><span>Neue Bewerbungen</span></button>
+    <button type="button" class="tile${D.review.length ? ' hot' : ''}" data-act="ptab" data-k="review"><b>${D.review.length}</b><span>Zu bestätigen</span></button>
+  </div>
+  <section class="grp" aria-labelledby="ownT">
+    <div class="sec-h"><h3 id="ownT">Deine Gigs</h3><span class="mini">${D.own.length} insgesamt</span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th scope="col">Gig</th><th scope="col">Aufwand</th><th scope="col">Vergütung</th><th scope="col">Deadline</th><th scope="col">Status</th></tr></thead>
+      <tbody>${D.own.map(g => `<tr><td><div class="td-title">${g.isNew ? '<span class="pill new">Neu</span>' : ''}<b>${esc(g.title)}</b></div></td><td class="num">${g.hours} h</td><td class="num">${euro(g.pay)}</td><td class="num">${g.closed ? 'läuft' : inDays(g.deadlineDays)}</td><td>${statusPill(gigStatus(g))}</td></tr>`).join('')}</tbody>
+    </table></div>
+  </section>`;
+}
+function newGigHTML(){
+  const loading = UI.aiLoading != null;
+  const steps = ['Aufgabe verstehen','Aufwand und Vergütung schätzen','Abnahmekriterien formulieren'];
+  return `<div class="d-head"><div class="stack-2"><p class="eyebrow">KI-Assistent</p><h2>Neuer Gig</h2></div></div>
+  <section class="ai">
+    <label for="aiInput">Beschreib in einem Satz, was erledigt werden soll.</label>
+    <textarea id="aiInput" rows="2" placeholder="z. B. Brauche jemanden, der unsere Umfragedaten in Excel aufbereitet.">${esc(UI.aiInput)}</textarea>
+    <div class="exs"><span class="mini">Beispiele:</span>${EXAMPLES.map(x => `<button type="button" class="ex" data-act="ex" data-text="${esc(x.text)}">${esc(x.label)}</button>`).join('')}</div>
+    ${UI.aiError ? `<p class="err" role="alert">${esc(UI.aiError)}</p>` : ''}
+    <div class="row-end"><button type="button" class="btn primary" data-act="generate"${loading ? ' disabled' : ''}>${icon('spark')}Gig erstellen lassen</button></div>
+  </section>
+  ${loading ? `<section class="ai-load" aria-live="polite">${steps.map((s,i) => `<div class="ai-step ${i < UI.aiLoading ? 'ok' : i === UI.aiLoading ? 'on' : ''}">${i < UI.aiLoading ? `<span class="okc">${icon('check')}</span>` : i === UI.aiLoading ? '<span class="spin"></span>' : '<span class="dot"></span>'}${s}</div>`).join('')}</section>` : ''}
+  ${!loading && UI.draft ? draftHTML() : ''}`;
+}
+function draftHTML(){
+  const d = UI.draft; const over = (+d.hours || 0) > 10;
+  return `<section class="draft" aria-labelledby="dT">
+    <div class="draft-h"><div class="stack-2"><p class="eyebrow">Entwurf vom KI-Assistenten</p><h3 id="dT">Prüfen, anpassen, veröffentlichen</h3></div><span class="pill tag-starter">${icon('spark')}KI-Entwurf</span></div>
+    <div class="f span4"><label for="d-title">Titel</label><input id="d-title" data-bind="title" value="${esc(d.title)}"></div>
+    <div class="f span4"><label for="d-desc">Beschreibung</label><textarea id="d-desc" data-bind="desc" rows="3">${esc(d.desc)}</textarea></div>
+    <div class="f span4"><label for="d-result">Ergebnis</label><input id="d-result" data-bind="result" value="${esc(d.result)}"></div>
+    <div class="f span4"><span class="flabel" id="critL">Abnahmekriterien</span><div class="crit">${d.criteria.map((c,i) => `<input id="d-crit${i}" data-bind="crit${i}" aria-labelledby="critL" value="${esc(c)}">`).join('')}</div></div>
+    <div class="f"><label for="d-hours">Aufwand (h)</label><input id="d-hours" data-bind="hours" type="number" min="1" max="40" value="${esc(d.hours)}"></div>
+    <div class="f"><label for="d-dead">Deadline (Tage)</label><input id="d-dead" data-bind="deadlineDays" type="number" min="1" max="60" value="${esc(d.deadlineDays)}"></div>
+    <div class="f"><label for="d-pay">Vergütung (€)</label><input id="d-pay" data-bind="pay" type="number" min="0" step="5" value="${esc(d.pay)}"><span class="mini">Vorschlag: 15 €/h</span></div>
+    <div class="f"><span class="flabel" id="ortL">Ort</span><div class="seg2" role="group" aria-labelledby="ortL"><button type="button" data-act="remote" data-v="1" aria-pressed="${!!d.remote}">remote</button><button type="button" data-act="remote" data-v="0" aria-pressed="${!d.remote}">vor Ort</button></div></div>
+    <div class="f span4"><label for="d-skills">Skills, die bestätigt werden (mit Komma getrennt)</label><input id="d-skills" data-bind="skillsText" value="${esc(d.skillsText)}"></div>
+    <p class="hint" id="splitHint"${over ? '' : ' hidden'}>${icon('split')}Mehr als 10 h ist für einen Gig viel. In zwei Gigs aufteilen?</p>
+    <div class="draft-act"><button type="button" class="btn ghost" data-act="discard">Verwerfen</button><button type="button" class="btn primary" data-act="publish">Veröffentlichen${icon('arrow')}</button></div>
+  </section>`;
+}
+function passPreview(L){
+  const n = L.entries.length;
+  return `<div class="ap-pass">
+    <div class="row-between"><span class="mini-lbl">Skill-Pass</span><span class="mini">${n ? `${n === 1 ? '1 Eintrag' : n + ' Einträge'} · Ø ${avgStars(L.entries)}` : 'noch keine Einträge'}</span></div>
+    ${n ? `<ul>${L.entries.slice(0,3).map(e => `<li><span class="t">${esc(e.title)}</span>${stars(e.stars)}</li>`).join('')}</ul>` : ''}
+    <div class="need">${L.confirmed.map(s => `<span class="sk conf">${icon('check')}${esc(s)}</span>`).join('')}${L.self.slice(0,3).map(s => `<span class="sk self">${esc(s)}</span>`).join('')}</div>
+  </div>`;
+}
+function appsHTML(D){
+  const groups = D.own.map(g => ({g, as: appsFor(g.id).filter(a => a.status !== 'confirmed')})).filter(x => x.as.length);
+  const order = {applied:0, accepted:1, submitted:2, rejected:3};
+  const label = {applied:null, accepted:{k:'progress',label:'Angenommen'}, submitted:{k:'review',label:'Abgegeben'}, rejected:{k:'rejected',label:'Abgesagt'}};
+  return `<div class="d-head"><div class="stack-2"><p class="eyebrow">Bewerbungen</p><h2>Wer passt zu deinem Gig?</h2></div></div>
+  ${groups.length ? groups.map(({g, as}) => `<section class="grp">
+    <div class="grp-h"><h3>${esc(g.title)}</h3><span class="mini">${g.hours} h · ${euro(g.pay)} · Deadline ${inDays(g.deadlineDays)}</span></div>
+    <div class="apps">${as.sort((x,y) => order[x.status] - order[y.status] || y.t - x.t).map(a => { const L = student(a.who); return `<article class="ap${a.who === 'lena' ? ' is-lena' : ''}">
+      <div class="ap-who">${person(L.name)}<div><b>${esc(L.name)}</b><span>${esc(L.study)} · ${L.sem}. Semester</span></div>${label[a.status] ? statusPill(label[a.status]) : '<span class="pill st-apps">Neu</span>'}</div>
+      ${passPreview(L)}
+      ${a.text ? `<p class="quote">„${esc(a.text)}“</p>` : ''}
+      ${a.status === 'applied' ? `<div class="ap-act"><button type="button" class="btn ghost" data-act="decide" data-id="${a.id}" data-ok="0">Absagen</button><button type="button" class="btn primary" data-act="decide" data-id="${a.id}" data-ok="1">${icon('check')}Annehmen</button></div>` : ''}
+    </article>`; }).join('')}</div>
+  </section>`).join('') : `<div class="empty"><h3>Noch keine Bewerbungen</h3><p>Sobald sich jemand auf einen deiner Gigs bewirbt, steht die Bewerbung hier, mit Skill-Pass.</p></div>`}`;
+}
+function reviewHTML(D){
+  const items = D.review.slice().sort((x,y) => (y.submittedAt || y.t) - (x.submittedAt || x.t));
+  const done = D.apps.filter(a => a.status === 'confirmed').sort((x,y) => (y.confirmedAt || 0) - (x.confirmedAt || 0));
+  return `<div class="d-head"><div class="stack-2"><p class="eyebrow">Zu bestätigen</p><h2>Ergebnisse prüfen</h2></div></div>
+  ${items.length ? items.map(a => { const g = gigById(a.gigId); const L = student(a.who); return `<article class="rv">
+    <div class="rv-main">
+      <div class="ap-who">${person(L.name)}<div><b>${esc(L.name)}</b><span>${esc(L.study)} · ${L.sem}. Semester</span></div></div>
+      <h3>${esc(g.title)}</h3>
+      <p class="rv-link">${icon('link')}<span>${esc(a.link || defaultLink(g))}</span></p>
+      <ul class="crit-list">${g.criteria.map(c => `<li>${icon('check')}<span>${esc(c)}</span></li>`).join('')}</ul>
+    </div>
+    <button type="button" class="btn primary" data-act="open-confirm" data-id="${a.id}">Bestätigen &amp; bewerten</button>
+  </article>`; }).join('') : `<div class="empty"><h3>Alles bestätigt</h3><p>Abgegebene Ergebnisse erscheinen hier. Mit deiner Bestätigung entsteht ein Eintrag im Skill-Pass.</p></div>`}
+  ${done.length ? `<section class="grp"><div class="sec-h"><h3>Bereits bestätigt</h3></div><div class="done-list">${done.map(a => { const g = gigById(a.gigId); const L = student(a.who); return `<div class="done-row">${person(L.name)}<span class="t"><b>${esc(L.name)}</b> · ${esc(g.title)}</span>${stars(a.stars || 5)}</div>`; }).join('')}</div></section>` : ''}`;
+}
+function renderModal(){
+  const box = $('#deskModal');
+  if(!UI.modal){ box.innerHTML = ''; return; }
+  const a = appById(UI.modal.aid); const g = gigById(a.gigId); const L = student(a.who); const m = UI.modal;
+  box.innerHTML = `<div class="mscrim" data-act="modal-bg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mT">
+    <div class="row-between"><div class="stack-2"><p class="eyebrow">Ergebnis bestätigen</p><h3 id="mT">${esc(g.title)}</h3><p class="mini">${esc(L.name)} · ${esc(L.study)}</p></div><button type="button" class="icon-btn" data-act="modal-close" aria-label="Schließen">${icon('x')}</button></div>
+    <fieldset><legend>Wie gut war das Ergebnis?</legend><div class="starpick">${[1,2,3,4,5].map(i => `<button type="button" data-act="star" data-v="${i}" aria-label="${i} von 5 Sternen" aria-pressed="${i <= m.stars}"><svg class="star" viewBox="0 0 24 24" aria-hidden="true">${STAR}</svg></button>`).join('')}</div></fieldset>
+    <fieldset><legend>Bestätigte Skills</legend><div class="checks">${g.gains.map((s,i) => `<label><input type="checkbox" id="cs-${i}" value="${esc(s)}"${m.skills.includes(s) ? ' checked' : ''}>${esc(s)}</label>`).join('')}</div></fieldset>
+    <div class="f"><label for="cfb">Ein Satz Feedback</label><textarea id="cfb" rows="2">${esc(m.feedback)}</textarea></div>
+    <div class="row-end"><button type="button" class="btn ghost" data-act="modal-close">Abbrechen</button><button type="button" class="btn primary" data-act="confirm">${icon('check')}Bestätigen</button></div>
+  </div></div>`;
+  setTimeout(()=>{ const b = $('[data-act="confirm"]'); if(b) b.focus({preventScroll:true}); }, 60);
+}
+function closeModal(){ UI.modal = null; renderModal(); }
+
+/* ================= Aktionen ================= */
+function apply(gid){
+  const g = gigById(gid); if(!g || lenaApp(gid)) return;
+  if(g.type === 'starter'){
+    const a = {id:nid('a'), gigId:gid, who:'lena', status:'applied', t:Date.now(), text:''};
+    S.apps.push(a); commit();
+    toast('studi', 'Beworben. Der Skill-Check wird freigeschaltet …');
+    later(1500, ()=>{ if(a.status !== 'applied') return; a.status = 'accepted'; a.acceptedAt = Date.now(); commit();
+      toast('studi', 'Angenommen! Leg los und gib dein Ergebnis ab.', {label:'Öffnen', act:()=>{ UI.sTab = 'mine'; showSide('studi'); renderStudent(); }}); });
+  } else {
+    const wasOpen = !!UI.sheet; UI.sheet = {kind:'apply', gid, text:defaultText(g)}; renderSheet(wasOpen);
+  }
+}
+function sendApplication(){
+  const sh = UI.sheet; if(!sh) return; const g = gigById(sh.gid);
+  const el = $('#applyText'); const text = ((el ? el.value : sh.text) || '').trim().slice(0,300);
+  const a = {id:nid('a'), gigId:g.id, who:'lena', status:'applied', t:Date.now(), text};
+  S.apps.push(a); UI.sheet = null; renderSheet(); commit();
+  toast('studi', 'Bewerbung abgeschickt. Dein Skill-Pass ist angehängt.');
+  if(isMine(g)) toast('anbieter', `Neue Bewerbung von Lena Becker: ${g.title}`, {label:'Ansehen', act:()=>{ UI.pTab = 'apps'; showSide('anbieter'); renderProvider(); }});
+  else simulateOther(a);
+}
+function simulateOther(a){
+  const g = gigById(a.gigId); if(!g) return;
+  if(a.status === 'applied') later(2800, ()=>{ if(a.status !== 'applied') return; a.status = 'accepted'; a.acceptedAt = Date.now(); commit();
+    toast('studi', `${g.provider} hat dich angenommen.`, {label:'Öffnen', act:()=>{ UI.sTab = 'mine'; showSide('studi'); renderStudent(); }}); });
+  else if(a.status === 'submitted') later(2800, ()=>{ if(a.status === 'submitted') confirmApp(a, 5, g.gains.slice(), pick(OTHER_FEEDBACK)); });
+}
+function submitResult(aid){
+  const a = appById(aid); if(!a || a.status !== 'accepted') return;
+  const g = gigById(a.gigId); const inp = document.getElementById('link-' + aid);
+  a.link = (inp && inp.value.trim()) || defaultLink(g);
+  a.status = 'submitted'; a.submittedAt = Date.now(); commit();
+  if(g.type === 'starter'){
+    toast('studi', 'Abgegeben. Proovy prüft deinen Skill-Check …');
+    later(1700, ()=>{ if(a.status === 'submitted') confirmApp(a, 5, g.gains.slice(), `Automatisch geprüft: alle ${g.criteria.length} Kriterien erfüllt.`); });
+  } else if(isMine(g)){
+    toast('studi', `Abgegeben. ${g.contact} prüft dein Ergebnis.`);
+    toast('anbieter', `Lena hat „${g.title}“ abgegeben.`, {label:'Prüfen', act:()=>{ UI.pTab = 'review'; showSide('anbieter'); renderProvider(); }});
+  } else {
+    toast('studi', `Abgegeben. ${g.provider} prüft dein Ergebnis.`);
+    simulateOther(a);
+  }
+}
+function confirmApp(a, starsN, skills, feedback){
+  const g = gigById(a.gigId);
+  a.status = 'confirmed'; a.confirmedAt = Date.now(); a.stars = starsN; a.feedback = feedback; a.skills = skills;
+  if(a.who !== 'lena'){ commit(); return; }
+  const e = {id:nid('e'), gigId:g.id, title:g.title, provider:g.provider, type:g.type, pay:g.pay, hours:g.hours, date:today(), skills, stars:starsN, feedback};
+  S.pass.unshift(e); UI.fresh = e.id; UI.scroll.pass = 0;
+  if(UI.sheet){ UI.sheet = null; renderSheet(); }
+  commit();
+  celebrate(e, S.pass.length === 1);
+}
+function toggleSave(gid){
+  const i = S.saved.indexOf(gid);
+  if(i >= 0){ S.saved.splice(i,1); toast('studi', 'Nicht mehr gemerkt.'); }
+  else { S.saved.push(gid); toast('studi', 'Gemerkt. Du findest den Gig unter „Meine Gigs“.'); }
+  commit();
+}
+function share(){ const wasOpen = !!UI.sheet; UI.sheet = {kind:'share'}; renderSheet(wasOpen); }
+function decide(aid, ok){
+  const a = appById(aid); if(!a || a.status !== 'applied') return;
+  const g = gigById(a.gigId); const L = student(a.who);
+  a.status = ok ? 'accepted' : 'rejected'; a.acceptedAt = Date.now(); commit();
+  toast('anbieter', ok ? `${L.first} ist angenommen.` : `Absage an ${L.first} ist raus.`);
+  if(a.who === 'lena') toast('studi', ok ? `Angenommen! ${g.provider} freut sich auf dein Ergebnis.` : `${g.provider} hat diesmal abgesagt.`,
+    ok ? {label:'Öffnen', act:()=>{ UI.sTab = 'mine'; showSide('studi'); renderStudent(); }} : null);
+}
+function openConfirm(aid){
+  const a = appById(aid); if(!a) return; const g = gigById(a.gigId);
+  UI.modal = {aid, stars:5, skills:g.gains.slice(), feedback:'Sehr sorgfältig und vor der Deadline abgegeben. Gerne wieder!'};
+  renderModal();
+}
+function doConfirm(){
+  const m = UI.modal; if(!m) return; const a = appById(m.aid); if(!a || a.status !== 'submitted'){ closeModal(); return; }
+  const fb = $('#cfb'); const feedback = ((fb ? fb.value : m.feedback) || '').trim();
+  const skills = Array.from(document.querySelectorAll('#deskModal .checks input:checked')).map(i => i.value);
+  const L = student(a.who);
+  closeModal();
+  toast('anbieter', a.who === 'lena' ? 'Bestätigt. Lenas Skill-Pass hat einen neuen Eintrag.' : `Bestätigt. ${L.first}s Skill-Pass hat einen neuen Eintrag.`);
+  confirmApp(a, m.stars, skills.length ? skills : gigById(a.gigId).gains.slice(), feedback);
+}
+function makeDraft(txt){
+  const t = txt.toLowerCase();
+  const tpl = AI_TEMPLATES.find(x => x.keys.some(k => t.includes(k)));
+  let d;
+  if(tpl) d = JSON.parse(JSON.stringify(tpl.d));
+  else {
+    let core = txt.replace(/^\s*(ich\s+|wir\s+)?(brauche[n]?|suche[n]?)\s+(dringend\s+)?(jemanden|eine person|hilfe|unterstützung)\s*,?\s*(der|die|das|bei|für|um)?\s*/i, '').replace(/[.!?\s]+$/, '').trim();
+    if(!core) core = txt.replace(/[.!?\s]+$/, '').trim();
+    const words = core.split(/\s+/); let last = words.pop() || '';
+    if(/[a-zäöüß]et$/i.test(last)) last = last.replace(/et$/i, 'en'); else if(/[^e]t$/i.test(last) && last.length > 3) last = last.replace(/t$/i, 'en');
+    words.push(last);
+    let title = words.join(' '); title = title.charAt(0).toUpperCase() + title.slice(1);
+    if(title.length > 64) title = title.slice(0, 60).replace(/\s+\S*$/, '') + ' …';
+    d = {title, desc:`${txt.trim().replace(/[.!?]*$/, '.')} Du arbeitest remote und teilst dir die Zeit bis zur Deadline selbst ein.`,
+      result:'Ein abgabefertiges Ergebnis, das du als Link teilst',
+      criteria:['Die Aufgabe ist vollständig erledigt','Das Vorgehen ist kurz dokumentiert','Abgabe bis zur Deadline'],
+      skills:['Sorgfalt','Selbstorganisation'], hours:3, pay:45, deadlineDays:7, remote:true};
+  }
+  d.skillsText = d.skills.join(', '); d.payAuto = true;
+  return d;
+}
+function generate(){
+  const el = $('#aiInput'); const txt = ((el ? el.value : UI.aiInput) || '').trim();
+  if(!txt){ UI.aiError = 'Schreib kurz, was erledigt werden soll. Ein Satz reicht.'; renderProvider(); const i = $('#aiInput'); if(i) i.focus(); return; }
+  UI.aiInput = txt; UI.aiError = ''; UI.draft = null; UI.aiLoading = 0; renderProvider();
+  later(650, ()=>{ UI.aiLoading = 1; renderProvider(); });
+  later(1300, ()=>{ UI.aiLoading = 2; renderProvider(); });
+  later(2000, ()=>{ UI.aiLoading = null; UI.draft = makeDraft(txt); renderProvider(); const f = $('#d-title'); if(f) f.focus({preventScroll:true}); });
+}
+function publish(){
+  const d = UI.draft; if(!d) return;
+  const skills = String(d.skillsText || '').split(',').map(s => s.trim()).filter(Boolean);
+  const hours = Math.max(1, Math.round(+d.hours || 1));
+  const g = {id:nid('g'), type:'paid', title:(String(d.title || '').trim() || 'Neuer Gig'), provider:ME, hours, pay:Math.max(0, Math.round(+d.pay || 0)),
+    remote:!!d.remote, deadlineDays:Math.max(1, Math.round(+d.deadlineDays || 7)), need:skills.length ? skills : ['Sorgfalt'], gains:skills.length ? skills : ['Sorgfalt'],
+    contact:'Dr. Jana Wolff', desc:d.desc, result:d.result, criteria:d.criteria.filter(c => String(c).trim()), isNew:true, createdAt:Date.now()};
+  S.gigs.push(g);
+  UI.draft = null; UI.aiInput = ''; UI.pTab = 'overview'; UI.filter = 'alle'; UI.scroll.feed = 0; UI.scroll.dmain = 0;
+  commit();
+  toast('anbieter', 'Veröffentlicht. Der Gig steht jetzt oben in Lenas Feed.');
+  toast('studi', `Neuer Gig für dich: ${g.title}`, {label:'Ansehen', act:()=>{ UI.sTab = 'feed'; UI.filter = 'alle'; UI.scroll.feed = 0; showSide('studi'); renderStudent(); }});
+}
+function openGig(gid){ UI.sTab = 'feed'; UI.filter = 'alle'; UI.jump = gid; renderStudent(); }
+function reset(){
+  timers.forEach(clearTimeout); timers.clear();
+  S = seed(); UI = freshUI(UI.view);
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  closeCele(); renderSheet(); renderModal();
+  ['#t-studi','#t-anbieter','#t-global'].forEach(s => { $(s).innerHTML = ''; });
+  renderAll();
+  toast('global', 'Demo zurückgesetzt.');
+}
+function resumePending(){
+  S.apps.forEach(a => {
+    if(a.who !== 'lena') return; const g = gigById(a.gigId); if(!g) return;
+    if(g.type === 'starter'){
+      if(a.status === 'applied') later(700, ()=>{ if(a.status === 'applied'){ a.status = 'accepted'; commit(); } });
+      if(a.status === 'submitted') later(700, ()=>{ if(a.status === 'submitted') confirmApp(a, 5, g.gains.slice(), `Automatisch geprüft: alle ${g.criteria.length} Kriterien erfüllt.`); });
+    } else if(!isMine(g)) simulateOther(a);
+  });
+}
+
+/* ================= Öffentlicher Skill-Pass (#pass-lena-becker) ================= */
+const PASS_HASH = 'pass-lena-becker';
+const PASS_DIR = 'pass/lena-becker/';
+const ARTIFACT_URL = 'https://claude.ai/artifact/GfxiFdRN7rW679rXFbzegq';
+const IN_ARTIFACT = /claudeusercontent\.com$/.test(location.hostname);
+const PATH_MATCH = location.pathname.match(/^(.*\/)pass\/lena-becker(?:\/(?:index\.html)?)?$/);
+const ON_PASS_PATH = !!PATH_MATCH;
+const ROOT_URL = (location.protocol === 'file:' ? 'file://' : location.origin) + (PATH_MATCH ? PATH_MATCH[1] : location.pathname.replace(/[^/]*$/, ''));
+const PASS_URL = IN_ARTIFACT ? ARTIFACT_URL + '#' + PASS_HASH : ROOT_URL + PASS_DIR;
+function goApp(next){
+  if(next){ try{ sessionStorage.setItem('proovy-next', next); }catch(e){} }
+  if(ON_PASS_PATH) location.href = ROOT_URL; else location.hash = '';
+}
+try{ if(!ON_PASS_PATH && sessionStorage.getItem('proovy-next') === 'new-gig'){ sessionStorage.removeItem('proovy-next'); UI.pTab = 'new'; } }catch(e){}
+const EXAMPLE_PASS = [
+  {id:'x2', gigId:'x2', title:'Literaturliste in Zotero aufräumen', provider:'Lehrstuhl für Wirtschaftsinformatik', type:'paid', pay:60, hours:4,
+    skills:['Recherche','Sorgfalt','Zotero'], stars:5, feedback:'Sehr sorgfältig und vor der Deadline abgegeben. Gerne wieder!'},
+  {id:'x1', gigId:'s1', title:'Skill-Check: CSV-Datensatz mit Python bereinigen', provider:'Proovy', type:'starter', pay:0, hours:1,
+    skills:['Python','Datenbereinigung'], stars:5, feedback:'Automatisch geprüft: alle 3 Kriterien erfüllt.'}
+];
+function shareSheetHTML(){
+  return `<div class="grab" aria-hidden="true"></div>
+    <div class="row-between"><div class="stack-2"><p class="eyebrow">Skill-Pass teilen</p><h3 id="shT" class="sheet-t">Dein Link zum Skill-Pass</h3></div><button type="button" class="icon-btn" data-act="sheet-close" aria-label="Schließen">${icon('x')}</button></div>
+    <p class="mini">Wer den Link öffnet, sieht deinen Skill-Pass mit allen bestätigten Einträgen.</p>
+    <div class="f"><label for="shareUrl">Öffentlicher Link</label><input id="shareUrl" type="text" readonly value="${esc(PASS_URL)}"></div>
+    <div class="sheet-foot"><a class="btn ghost" href="${esc(PASS_URL)}" target="_blank" rel="noopener">Ansehen${icon('arrow')}</a><button type="button" class="btn primary grow" data-act="copy-link">${icon('link')}Link kopieren</button></div>`;
+}
+function copyLink(){
+  const inp = $('#shareUrl');
+  const fallback = () => { if(inp){ inp.focus(); inp.select(); } toast('studi', 'Link markiert. Jetzt kopieren.'); };
+  try{
+    const p = navigator.clipboard && navigator.clipboard.writeText(PASS_URL);
+    if(p && p.then) p.then(() => toast('studi', 'Link zu deinem Skill-Pass kopiert.'), fallback); else fallback();
+  }catch(e){ fallback(); }
+}
+function pubHTML(){
+  const U = S.user;
+  const entries = S.pass.length ? S.pass : EXAMPLE_PASS.map(e => Object.assign({date: today()}, e));
+  const n = entries.length; const hours = entries.reduce((s,e) => s + (e.hours || 0), 0);
+  const conf = []; entries.forEach(e => e.skills.forEach(s => { if(!conf.includes(s)) conf.push(s); }));
+  return `<header class="pub-bar"><div class="pub-in pub-bar-in">${logo()}<span class="pub-tag">Skill-Pass</span><button type="button" class="pub-back" data-act="to-app">Zur Demo-App</button></div></header>
+  <main class="pub-in pub-main">
+    <section class="pass-card pub-card" aria-labelledby="pubName">
+      <svg class="deco" viewBox="0 0 60 72" aria-hidden="true"><path d="M7 40 L25 63 L54 8"/></svg>
+      <p class="pass-lbl">Skill-Pass · statt Lebenslauf</p>
+      <div><h1 class="pass-name" id="pubName">${esc(U.name)}</h1><p class="pass-meta">${esc(U.study)} · ${U.sem}. Semester</p></div>
+      <div><span class="pill tag-starter">${icon('shield')}Uni-Mail bestätigt</span></div>
+      <div class="pass-stats">
+        <div><b>${n}</b><span>bestätigt</span></div>
+        <div><b>${avgStars(entries)}</b><span>Ø Sterne</span></div>
+        <div><b>${hours}</b><span>h Praxis</span></div>
+      </div>
+    </section>
+    <p class="pub-lead">Jeder Eintrag stammt aus einem erledigten Gig. Der Anbieter hat das Ergebnis geprüft, bewertet und die Skills bestätigt.</p>
+    <section class="pub-sec" aria-labelledby="pubSk"><h2 class="sh" id="pubSk"><span>Bestätigte Skills</span><span>${conf.length}</span></h2><div class="need">${conf.map(s => `<span class="sk conf">${icon('check')}${esc(s)}</span>`).join('')}</div></section>
+    <section class="pub-sec" aria-labelledby="pubE"><h2 class="sh" id="pubE"><span>Bestätigt durch Gigs</span><span>${n}</span></h2>${entries.map(entryHTML).join('')}</section>
+    <section class="pub-sec" aria-labelledby="pubS"><h2 class="sh" id="pubS"><span>Selbst angegeben</span><span>nicht bestätigt</span></h2><div class="need">${U.skills.map(s => `<span class="sk self">${esc(s)}</span>`).join('')}</div><div class="linkrow">${icon('link')}<span>${esc(U.github)}</span></div></section>
+    <section class="pub-ask" aria-labelledby="pubA"><div class="stack-2"><h2 class="pub-ask-t" id="pubA">Passt ${esc(U.first)} zu eurer Aufgabe?</h2><p>Beschreibt sie in einem Satz, der KI-Assistent macht daraus einen Gig.</p></div><button type="button" class="btn primary" data-act="pub-gig">${icon('spark')}Gig ausschreiben</button></section>
+    <footer class="pub-foot">${logo()}<p class="mini">Prototyp · ${esc(U.name)} ist eine fiktive Person, alle Daten sind Demo-Daten.</p></footer>
+  </main>`;
+}
+function openGigFromPass(){
+  UI.pTab = 'new'; UI.scroll.dmain = 0;
+  UI.view = NARROW.matches ? 'anbieter' : 'beide';
+  try{ localStorage.setItem(VKEY, UI.view); }catch(e){}
+  goApp(ON_PASS_PATH ? 'new-gig' : null);
+}
+let resumed = false;
+function route(){
+  const on = ON_PASS_PATH || location.hash.replace(/^#/, '') === PASS_HASH;
+  document.title = on ? S.user.name + ' · Skill-Pass · Proovy' : 'Proovy Prototyp';
+  const pub = $('#pub');
+  $('.app').hidden = on; pub.hidden = !on;
+  if(on){ pub.innerHTML = pubHTML(); window.scrollTo(0, 0); return; }
+  pub.innerHTML = '';
+  renderAll();
+  if(!resumed){ resumed = true; resumePending(); }
+}
+window.addEventListener('hashchange', route);
+window.addEventListener('storage', e => { if(e.key === KEY && !$('#pub').hidden){ S = load(); route(); } });
+
+/* ================= Events ================= */
+document.addEventListener('click', e => {
+  if(UI.guide && !e.target.closest('#guide') && !e.target.closest('[data-act="guide"]')){ UI.guide = false; renderGuide(); }
+  const t = e.target.closest('[data-act]'); if(!t) return;
+  const id = t.dataset.id;
+  switch(t.dataset.act){
+    case 'details': openDetails(id); break;
+    case 'ob-next': obNext(); break;
+    case 'ob-skip': obFinish(true); break;
+    case 'ob-finish': obFinish(false); break;
+    case 'ob-sem': { UI.ob.sem = Math.min(12, Math.max(1, UI.ob.sem + (+t.dataset.d))); const o = $('#ob-semv'); if(o) o.textContent = `${UI.ob.sem}. Semester`; break; }
+    case 'ob-skill': obSkill(t.dataset.s); break;
+    case 'guide': UI.guide = !UI.guide; renderGuide(); break;
+    case 'view': setView(t.dataset.v); break;
+    case 'reset': reset(); break;
+    case 'stab': if(UI.sheet) closeSheet(); UI.sTab = t.dataset.k; renderStudent(); break;
+    case 'filter': UI.filter = t.dataset.k; UI.scroll.feed = 0; renderStudent(); break;
+    case 'find-starter': UI.sTab = 'feed'; UI.filter = 'starter'; UI.scroll.feed = 0; renderStudent(); break;
+    case 'apply': apply(id); break;
+    case 'save': toggleSave(id); break;
+    case 'open-gig': openGig(id); break;
+    case 'submit': submitResult(id); break;
+    case 'share': share(); break;
+    case 'copy-link': copyLink(); break;
+    case 'to-app': goApp(); break;
+    case 'pub-gig': openGigFromPass(); break;
+    case 'sheet-bg': if(e.target === t) closeSheet(); break;
+    case 'sheet-close': closeSheet(); break;
+    case 'send-app': sendApplication(); break;
+    case 'cele-go': closeCele(); UI.sTab = 'pass'; UI.scroll.pass = 0; renderStudent(); break;
+    case 'cele-close': closeCele(); break;
+    case 'ptab': UI.pTab = t.dataset.k; UI.scroll.dmain = 0; renderProvider(); break;
+    case 'ex': { UI.aiInput = t.dataset.text; const i = $('#aiInput'); if(i){ i.value = UI.aiInput; i.focus(); } break; }
+    case 'generate': generate(); break;
+    case 'remote': if(UI.draft){ UI.draft.remote = t.dataset.v === '1'; renderProvider(); } break;
+    case 'publish': publish(); break;
+    case 'discard': UI.draft = null; renderProvider(); break;
+    case 'decide': decide(id, t.dataset.ok === '1'); break;
+    case 'open-confirm': openConfirm(id); break;
+    case 'modal-bg': if(e.target === t) closeModal(); break;
+    case 'modal-close': closeModal(); break;
+    case 'star': if(UI.modal){ UI.modal.stars = +t.dataset.v; document.querySelectorAll('.starpick button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.v <= UI.modal.stars))); } break;
+    case 'confirm': doConfirm(); break;
+    case 'toast-act': { const fn = tActs.get(+t.dataset.tid); const box = t.closest('.toast'); if(box) box.remove(); if(fn) fn(); break; }
+  }
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if(t.id === 'applyText'){ const c = $('#applyCount'); if(c) c.textContent = `${t.value.length}/300`; if(UI.sheet) UI.sheet.text = t.value; return; }
+  if(t.id === 'ob-mail'){ UI.ob.mail = t.value; return; }
+  if(t.id === 'ob-study'){ UI.ob.study = t.value; return; }
+  if(t.id === 'ob-hours'){ UI.ob.hours = +t.value; const o = $('#ob-hv'); if(o) o.textContent = `${t.value} h`; const l = $('#ob-livev'); if(l) l.textContent = fitsCount(+t.value); return; }
+  if(t.id === 'aiInput'){ UI.aiInput = t.value; return; }
+  if(t.id === 'cfb'){ if(UI.modal) UI.modal.feedback = t.value; return; }
+  if(t.id && t.id.indexOf('link-') === 0){ UI.links[t.id.slice(5)] = t.value; return; }
+  const k = t.dataset && t.dataset.bind; if(!k || !UI.draft) return;
+  const d = UI.draft;
+  if(k.indexOf('crit') === 0){ d.criteria[+k.slice(4)] = t.value; return; }
+  if(k === 'hours'){
+    d.hours = t.value; const h = $('#splitHint'); if(h) h.hidden = !((+t.value || 0) > 10);
+    if(d.payAuto){ d.pay = Math.round((+t.value || 0) * 15); const p = $('#d-pay'); if(p) p.value = d.pay; }
+    return;
+  }
+  if(k === 'pay'){ d.pay = t.value; d.payAuto = false; return; }
+  d[k] = t.value;
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if(UI.modal && t.type === 'checkbox' && t.closest('#deskModal')){
+    const v = t.value; const s = UI.modal.skills;
+    if(t.checked && !s.includes(v)) s.push(v); if(!t.checked) UI.modal.skills = s.filter(x => x !== v);
+  }
+});
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape'){
+    if(!$('#studiCele').hidden) closeCele(); else if(UI.sheet) closeSheet(); else if(UI.modal) closeModal(); else if(UI.guide){ UI.guide = false; renderGuide(); }
+  } else if(e.key === 'Enter' && (e.metaKey || e.ctrlKey) && e.target && e.target.id === 'aiInput'){ e.preventDefault(); generate(); }
+});
+document.addEventListener('scroll', e => { const el = e.target; if(el && el.dataset && el.dataset.scroll) UI.scroll[el.dataset.scroll] = el.scrollTop; }, true);
+if(NARROW.addEventListener) NARROW.addEventListener('change', renderBar); else if(NARROW.addListener) NARROW.addListener(renderBar);
+
+route();
+})();
+</script>
+</body>
+</html>
